@@ -1,0 +1,5 @@
+<html><body>
+<h1>{{ report.request.ticker }} Valuation Report</h1>
+<p>{{ report.narrative_sections.executive_summary }}</p>
+<h2>Grade: {{ report.grade.letter_grade }} ({{ '%.2f'|format(report.grade.total_score_0_100) }})</h2>
+</body></html>

@@ -1,0 +1,13 @@
+# {{ report.request.ticker }} Valuation Report
+
+## Executive summary
+{{ report.narrative_sections.executive_summary }}
+
+## Grade
+- Letter: **{{ report.grade.letter_grade }}**
+- Score: **{{ '%.2f'|format(report.grade.total_score_0_100) }}**
+
+## Risks
+{% for r in report.risks %}
+- {{ r }}
+{% endfor %}
