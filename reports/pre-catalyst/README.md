@@ -67,6 +67,41 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - Treat acquisition premiums as hypothetical unless an offer is confirmed.
 - **Tracking:** For each candidate, log first-seen date, score, evidence, price, catalyst, later announcements, 1/5/20/60 trading-day returns, outcome and invalidation. Avoid look-ahead bias and survivorship bias.
 
+## Morning email (the owner's single daily email — keep it short and plain)
+
+Send **one** email each trading morning to nepollack@gmail.com. Don't send separate addenda. The full detailed report stays in the repo and is linked at the bottom of the email.
+
+- **Subject:** `Morning Stock Picks — <Ddd Mon D> — <N> Buy` (for example, `Morning Stock Picks — Tue Oct 27 — 1 Buy`). Use `No Buys today` when there are none.
+- **Plain words, no jargon.**
+
+  | Instead of | Write |
+  |---|---|
+  | PDUFA | FDA decision |
+  | 13D | activist investor / big holder |
+  | Dutch-auction tender | company buyback offer |
+  | expected return | our estimate |
+  | CRL | FDA rejection |
+  | merger arb | already-agreed takeover |
+
+  Never use RVOL, EV/EBITDA, Brier, scenario, base rate or market-implied in the email.
+- **Layout** (aim for one screen; at most 3 short sections plus the table):
+  1. **One-line headline:** the single best idea today, or "No strong ideas today".
+  2. **Table**, sorted Buy first, then the closest-to-Buy names, then long shots. Columns:
+     - **Stock:** ticker linked to `https://finance.yahoo.com/quote/<TICKER>`, plus the company name.
+     - **Price.**
+     - **What's coming:** plain words and date.
+     - **Call:** Buy / Hold (buy under $X) / Sell / Long shot.
+     - **If it works:** % and chance.
+     - **If it fails:** % and chance.
+     - **Source:** a link to the primary filing or news item.
+
+     At most about 8 rows.
+  3. **Why:** one short line per Buy or near-Buy name.
+  4. **Key dates:** the next 2–3 weeks, one line each.
+  5. **Changes since yesterday:** new, removed, call changes, and results of past calls once events resolve, as one line each.
+  6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
+- **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").
+
 ## Ratings and predictions (added 2026-10-26 at the owner's request)
 
 Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** rating. The rating is separate from the 0–100 research-priority score:
