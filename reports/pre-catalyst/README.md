@@ -53,6 +53,31 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - Treat acquisition premiums as hypothetical unless an offer is confirmed.
 - **Tracking:** For each candidate, log first-seen date, score, evidence, price, catalyst, later announcements, 1/5/20/60 trading-day returns, outcome and invalidation. Avoid look-ahead bias and survivorship bias.
 
+## Ratings and predictions (added 2026-10-26 at the owner's request)
+
+Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** rating. The rating is separate from the 0–100 research-priority score:
+
+- the **score** measures how strong the catalyst evidence is;
+- the **rating** measures risk and reward at today's price.
+
+1. **Scenarios.** Write 2–4 scenarios over a 6-month horizon (or to the next decisive event). Give each a probability and a price target. The probabilities must sum to 1.
+2. **Anchor the probabilities.** Use two references:
+   - **Base rates:** about one-third of press-reported takeover rumours become an announced deal within 12 months (Ahern & Sosyura, 2015); announced definitive deals complete about 90% or more of the time; activist-13D targets earn about +7% abnormal return around filing, concentrated in targets later sold.
+   - **The market-implied probability:** (price − no-deal price) / (deal price − no-deal price).
+   - Depart from the market-implied probability by more than about 15 percentage points only with specific, cited evidence.
+3. **Compute the rating.** Run `python3 -I scripts/precatalyst.py rate --price P --scenario "label:prob:target" ... --confidence {low,medium,medium-high,high} [--capped]`. The bands are:
+   - **Strong Buy:** expected return at least +20%, provided no scenario with 15%+ probability loses more than 15%, and confidence is medium-high or better.
+   - **Buy:** at least +8%.
+   - **Hold:** between −5% and +8%.
+   - **Sell:** −5% or worse.
+   - **Strong Sell:** −15% or worse (needs at least medium confidence).
+   - Use `--capped` for OTC, illiquid or heavy-dilution names, which caps them at Buy/Sell.
+   - Also report the price at which the rating would change.
+4. **Realistic range.** `python3 -I scripts/precatalyst.py snapshot TICKER` gives a 3-month 80% band from 1-year realized volatility. Do not use it for announced-deal names; use the deal and break scenarios instead.
+5. **Log predictions** in `candidate_log.csv`: rating, expected return, a precisely defined event with probability and deadline, and the 80% range with its date. Each run, run `python3 -I scripts/precatalyst.py update-log` to fill in returns and excess returns at 1, 5, 20 and 60 trading days (versus SPY for US names, XIU.TO for Canadian ones). When an event deadline passes, record `event_outcome` (1/0).
+6. **Calibration.** When there are 10 or more resolved events, report the Brier score and the hit rate of the 80% ranges. If the ranges hit less than about 70% of the time, widen them. Until there are 30 or more resolved predictions, say plainly that the ratings are uncalibrated. Never claim an edge without that evidence.
+7. **Not rated.** Leave a name unrated rather than guess when there was no scenario or valuation work.
+
 ## Runbook (data access that worked from the cloud environment, 2026-10-26)
 
 - **EDGAR current feed:**
@@ -76,4 +101,6 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - SEDAR+ and SEDI have no direct programmatic access.
   - There is no short-interest or options-flow feed.
   - Paywalled outlets (WSJ, Bloomberg, The Information, Semafor) can only be cited through secondary coverage.
-  - **No email connector was connected as of 2026-10-26.**
+  - The Yahoo `quoteSummary` endpoint (analyst estimates, short interest) and options chains are blocked; use realized volatility and SEC XBRL instead.
+- **Fundamentals:** `https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json`. Take revenue, operating income, D&A, operating cash flow and capex as trailing 12 months (latest fiscal year + current year-to-date − prior year-to-date), and cash and debt at the latest balance-sheet date.
+- **Email:** the Gmail connector was connected on 2026-10-26. Send the report to nepollack@gmail.com as an HTML email with the subject line above, and confirm only when `send_message` returns a message id.
