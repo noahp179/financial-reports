@@ -91,8 +91,9 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
      - **Price.**
      - **What's coming:** plain words and date.
      - **Call:** Buy / Hold (buy under $X) / Sell / Long shot.
-     - **If it works:** % and chance.
-     - **If it fails:** % and chance.
+     - **If it works:** the % move and its chance, written out in full (for example, "+32% · 78% chance"), never a bare bracketed number.
+     - **If it fails:** the % move and its chance, in the same format (for example, "−48% · 22% chance").
+     - When the two chances don't add up to 100%, add a short note under the table saying the rest is in-between outcomes.
      - **Source:** a link to the primary filing or news item.
 
      At most about 8 rows.
