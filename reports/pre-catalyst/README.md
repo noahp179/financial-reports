@@ -8,6 +8,20 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
 - **Delivery:** Target 7:30–8:00 a.m. America/Toronto. Email only through an authorized, connected integration, and confirm delivery only when the email system reports success.
 - **Universe:** NYSE, Nasdaq, TSX and TSX-V common stocks, about US$50M–US$10B market cap, with exceptions flagged.
   - Flag illiquidity, low float, dilution, OTC status and extreme volatility.
+- **Owner's priority (clarified 2026-10-26):** the *highest potential return in a short time*, and **small and micro-caps are welcome**.
+  - Every report includes a **small-cap, short-horizon section** that scans for dated catalysts in the next 1–60 days. The core is:
+    - FDA decision dates (PDUFA) and advisory committees;
+    - Phase 2 and 3 topline readouts;
+    - tender offers and Dutch auctions;
+    - activist 13Ds at small caps;
+    - strategic reviews and sale processes;
+    - hostile bids;
+    - contract awards;
+    - earnings at heavily shorted names.
+  - **Practical floor:** market cap of at least US$20M, price of at least US$1, and 20-day average daily dollar volume (ADV) of at least US$250K. Names below the floor can be mentioned but are flagged and `--capped`.
+  - **Ranking:** by expected return. Each name also shows its **upside potential** (best-scenario return), P(gain ≥ 25%) and P(loss ≥ 25%), so the highest-potential lottery tickets are visible but are not confused with good bets.
+  - **Binary events:** state plainly when the most likely outcome is a large loss.
+  - **Sizing:** never recommend position sizes. Note "binary — size accordingly".
 - **Catalyst categories:**
   - M&A
   - SEC and SEDAR+ filings (8-K, 13D, Form 4, merger and tender filings, proxies, early warning reports, SEDI)
@@ -72,6 +86,7 @@ Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** ra
    - **Sell:** −5% or worse.
    - **Strong Sell:** −15% or worse (needs at least medium confidence).
    - Use `--capped` for OTC, illiquid or heavy-dilution names, which caps them at Buy/Sell.
+   - The tool also prints upside potential, P(gain ≥ 25%) and P(loss ≥ 25%). Report all three for short-horizon names.
    - Also report the price at which the rating would change.
 4. **Realistic range.** `python3 -I scripts/precatalyst.py snapshot TICKER` gives a 3-month 80% band from 1-year realized volatility. Do not use it for announced-deal names; use the deal and break scenarios instead.
 5. **Log predictions** in `candidate_log.csv`: rating, expected return, a precisely defined event with probability and deadline, and the 80% range with its date. Each run, run `python3 -I scripts/precatalyst.py update-log` to fill in returns and excess returns at 1, 5, 20 and 60 trading days (versus SPY for US names, XIU.TO for Canadian ones). When an event deadline passes, record `event_outcome` (1/0).

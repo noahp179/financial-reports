@@ -132,9 +132,17 @@ def cmd_rate(args: argparse.Namespace) -> None:
     for label, p, t in scenarios:
         print(f"  {label:40s} p={p:5.0%} target={t:9.2f} return={t / args.price - 1:+7.1%}")
     rating = rate(expected_return, worst, args.confidence, args.capped)
+    returns = [(p, t / args.price - 1) for _, p, t in scenarios]
+    best = max(r for _, r in returns)
+    p_big_gain = sum(p for p, r in returns if r >= 0.25)
+    p_big_loss = sum(p for p, r in returns if r <= -0.25)
     print(
         f"expected price={expected_price:.2f} expected return={expected_return:+.1%} "
         f"worst material (p>=15%) return={worst:+.1%} -> {rating}"
+    )
+    print(
+        f"  upside potential={best:+.0%}  P(gain>=25%)={p_big_gain:.0%}  "
+        f"P(loss>=25%)={p_big_loss:.0%}"
     )
     for name, floor in RATING_BANDS[:2]:
         print(
