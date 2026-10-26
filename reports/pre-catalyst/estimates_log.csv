@@ -1,0 +1,13 @@
+date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,note
+2026-10-26,MAT,15.72,Hold,-0.0080,0.3041,0.20,-0.2208,0.25,Baseline: takeover interest vs new-CEO standalone plan
+2026-10-26,ACB,3.92,Hold,-0.0280,0.2117,0.15,-0.2347,0.40,Baseline: hostile bid worth ~US$4.22
+2026-10-26,CART,53.74,Hold,0.0000,0.2095,0.15,-0.1626,0.20,Baseline: reported sale talks; Uber reportedly out
+2026-10-26,INMD,13.75,Hold,0.0010,0.1782,0.15,-0.1273,0.20,Baseline: special committee still active
+2026-10-26,SGRY,23.19,Hold,-0.0160,0.0134,0.92,-0.3532,0.08,Baseline: agreed takeover at US$23.50
+2026-10-26,RRC,53.48,Hold,-0.0030,0.0101,0.92,-0.1488,0.08,Baseline: agreed EQT stock deal
+2026-10-26,HLF,26.80,Hold,-0.0240,0.0075,0.93,-0.4373,0.07,Baseline: agreed takeover at C$27.00
+2026-10-26,PYPD,5.29,Buy,0.1470,0.3233,0.78,-0.4802,0.22,Baseline: FDA decision Nov 28
+2026-10-26,INVE,2.725,Hold,0.0500,0.2477,0.20,-0.1376,0.30,Baseline: buyback offer US$2.85-3.40; cash ~US$3.66/share
+2026-10-26,VNDA,3.94,Hold,0.0460,0.4594,0.30,-0.3020,0.35,Baseline: FDA decision Dec 12; 3 trial results by year-end
+2026-10-26,CAPR,5.72,Hold,-0.0170,1.7972,0.20,-0.5192,0.70,Baseline: FDA decision Nov 22; panel voted 9-3 against in July
+2026-10-26,CART,60.88,Hold,-0.0071,0.1087,0.10,-0.1459,0.30,"WSJ 10/26 3:24pm: DoorDash in advanced talks, deal possibly this week; stock +13% after report"

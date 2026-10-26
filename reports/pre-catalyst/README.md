@@ -117,10 +117,33 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
 
      At most about 8 rows.
   3. **Why:** one short line per Buy or near-Buy name.
-  4. **Key dates:** the next 2–3 weeks, one line each.
-  5. **Changes since yesterday:** new, removed, call changes, and results of past calls once events resolve, as one line each.
+  4. **Changes since yesterday:** new, removed, call changes, and results of past calls once events resolve, as one line each.
+  5. **Tracked stocks and Calendar:** paste the HTML produced by `email-sections` (see "Tracking news, prices and estimates" below). It replaces a separate key-dates list.
   6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
 - **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").
+
+## Tracking news, prices and estimates (added 2026-10-26)
+
+Every active name in `candidate_log.csv` is followed day to day. The data lives in four files in this folder:
+
+| File | What it holds |
+|---|---|
+| `candidate_log.csv` | First-seen price, first call and the `keywords` used to filter headlines |
+| `news_log.csv` | News headlines and SEC filings per stock (appended, never rewritten) |
+| `estimates_log.csv` | Every call and estimate over time, so changes such as "Hold → Buy" or "78% → 85%" are visible |
+| `calendar.csv` | Dated upcoming events, with `status` set to confirmed, reported or estimated |
+
+**Daily steps:**
+
+1. **Fetch news.** Run `python3 -I scripts/precatalyst.py track-news`. It appends the last 3 days of news and filings for active names, skips routine insider and registration forms, and drops market round-ups and headlines that don't name the company.
+2. **Read and re-rate.** Read anything material. Re-rate the stock if the news changes the odds by running `rate ... --ticker T --note "why"`, which appends to `estimates_log.csv`. Re-log a stock whenever its price has moved enough to change the estimate.
+3. **Keep the calendar current.**
+   - Add new dated events.
+   - Fix dates the company has since confirmed. For example, Vanda's own release moved Q3 results to Oct 28.
+   - Set status to `confirmed` only when the company or a regulator gave the date.
+   - When an event resolves, record the outcome in `candidate_log.csv`.
+4. **Build the email sections.** Run `python3 -I scripts/precatalyst.py email-sections --since <previous email date> --out <scratch>/sections.html`. Paste the HTML into the morning email under the picks table.
+5. **Retire names.** When a name stops mattering (the deal closed, or the thesis is dead), set `status` to `closed` in `candidate_log.csv` with an `event_outcome`, and it drops out of tracking.
 
 ## Ratings and predictions (added 2026-10-26 at the owner's request)
 
