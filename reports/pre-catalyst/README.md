@@ -67,6 +67,25 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - Treat acquisition premiums as hypothetical unless an offer is confirmed.
 - **Tracking:** For each candidate, log first-seen date, score, evidence, price, catalyst, later announcements, 1/5/20/60 trading-day returns, outcome and invalidation. Avoid look-ahead bias and survivorship bias.
 
+## Extra checks added after the 2026-10-26 post-mortem
+
+The 2026-10-26 post-mortem looked at that day's top movers and found three kinds of public signal that existed beforehand. Run these checks every day.
+
+1. **Dated scientific presentations.** Companies often announce weeks ahead that trial data will be presented at a medical meeting (ESMO, ASCO, ASH, SITC, AACR, AASLD, and others).
+   - Xencor announced on 2026-08-05 that its XmAb819 data would be an oral presentation at ESMO (Oct 23–27). The stock then moved +39% pre-market and closed +14%.
+   - Use EDGAR full-text search, for example `"accepted for" "oral presentation"` or the conference name, over the last 90 days. Add any presentation in the next 30 days to the calendar as a binary event.
+   - Note that meeting abstracts often go online days early.
+2. **Re-bid watchlist.** Track companies where a controlling holder or bidder made a proposal within the last 2 years that ended without a deal, and that now trade well below the old bid.
+   - Surgery Partners: Bain bid US$25.75 in January 2025; talks ended in June 2025; the stock sat at US$15.75 before HealthSpan's US$23.50 deal on 2026-10-26.
+   - This gives no timing, so treat it as a watchlist with a low probability per week, not a Buy.
+3. **Open sale process plus a volume spike.** Flag companies with a public strategic review or sale process whose volume runs above 3× average, or whose price rises more than 10% in a week, with no news.
+   - Logan Energy: review began 2026-08-14; volume was 4.7× average and the stock rose 14% the week before its 10/26 deal.
+   - This is a lead, not evidence of a leak.
+4. **Pre-market check (about 7:00 ET).** For overnight deal reports or data releases, compare the pre-market price with any announced or reported terms. Say "room left vs. terms" or "already moved, don't chase".
+   - Xencor faded from +39% pre-market to +14% at the close.
+
+**What these checks cannot do:** predict the timing of unannounced deals, or unexplained intraday rallies. Examples from that day: EQT/Range, High Liner, GrafTech (EAF), Xtend (XTND). Don't claim otherwise. Don't trade on suspected leaks.
+
 ## Morning email (the owner's single daily email — keep it short and plain)
 
 Send **one** email each trading morning to nepollack@gmail.com. Don't send separate addenda. The full detailed report stays in the repo and is linked at the bottom of the email.
