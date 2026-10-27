@@ -362,6 +362,13 @@ def cmd_run(args: argparse.Namespace) -> None:
         log(f"run: starting for {today} (news since {since}, markets: {status})")
         if cfg.get("git_sync"):
             sync_from_github("start")
+            delivered = git("log", "-1", "--format=%h %s", f"--grep=^Morning run {today}")
+            if delivered.stdout.strip() and not (args.force or args.dry_run):
+                found = delivered.stdout.strip()
+                log(f"run: today's email already went out from another copy ({found})")
+                state.update({"last_sent": today.isoformat(), "last_subject": "sent elsewhere"})
+                save_json(STATE_FILE, state)
+                return
         for step in (("check-logs",), ("update-log",), ("track-news", "--since", since)):
             done = run_tool(*step)
             log(f"{step[0]}: exit {done.returncode}; {done.stdout.strip().splitlines()[-1:]}")
