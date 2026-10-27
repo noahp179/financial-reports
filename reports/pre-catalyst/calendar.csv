@@ -2,12 +2,14 @@ date,ticker,event,status,source
 2026-10-28,PYPD,Investor day,confirmed,https://finance.yahoo.com/healthcare/articles/polypid-host-virtual-investor-day-123000098.html
 2026-10-28,VNDA,Q3 earnings,confirmed,https://finance.yahoo.com/quote/VNDA/news
 2026-10-30,CART,"Possible DoorDash deal announcement (WSJ: ""as soon as this week"")",reported,https://finance.yahoo.com/m/1ca5e97f-2ae1-37eb-95f9-8a13970dcaf1/doordash-is-in-advanced-talks.html
+2026-10-30,INO,FDA decision (INO-3107),confirmed,https://www.sec.gov/Archives/edgar/data/1055726/000105572626000023/ino-20260630.htm
 2026-11-02,MAT,New CEO Roger Lynch starts (by this date),reported,https://www.retailgazette.co.uk/blog/2026/10/mattel-boss-ynon-kreiz-exits-to-lead-paramount-warner-bros-giant/
 2026-11-05,MAT,Q3 earnings (after close),confirmed,https://finviz.com/news/403330/mattel-announces-third-quarter-2026-financial-results-and-conference-call-date
 2026-11-05,CART,Q3 earnings (after close),confirmed,https://www.sec.gov/Archives/edgar/data/0001579091/000157909126000040/q22026pressrelease.htm
 2026-11-12,INVE,Q3 report (explains cash drop),estimated,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111181/ea030911901ex99-1.htm
 2026-11-19,INVE,Buyback offer closes 5pm ET,confirmed,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111186/ea0308959-01.htm
 2026-11-22,CAPR,FDA decision,confirmed,https://www.sec.gov/Archives/edgar/data/1133869/000110465926100071/
+2026-11-22,SVRA,FDA decision (Molbreevi),confirmed,https://www.sec.gov/Archives/edgar/data/1160308/000119312526344585/svra-20260630.htm
 2026-11-28,PYPD,FDA decision,confirmed,https://www.sec.gov/Archives/edgar/data/1611842/000121390026088040/
 2026-12-04,ACB,Curaleaf takeover bid expires,confirmed,https://www.sec.gov/Archives/edgar/data/0001683541/000127956926000955/ex991.htm
 2026-12-12,VNDA,FDA decision (Quimilza),confirmed,https://www.sec.gov/Archives/edgar/data/1347178/000162828026053308/
