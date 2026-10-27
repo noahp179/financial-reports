@@ -715,7 +715,7 @@ def cmd_edgar_search(args: argparse.Namespace) -> None:
         "enddt": args.until or dt.date.today().isoformat(),
     }
     if args.forms:
-        params["forms"] = args.forms.replace(" ", "")
+        params["forms"] = ",".join(f.strip() for f in args.forms.split(","))
     if args.cik:
         params["ciks"] = f"{int(args.cik):010d}"
     try:

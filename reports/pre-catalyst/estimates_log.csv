@@ -15,3 +15,5 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-10-26,INO,0.87,Sell,-0.0901,0.7816,0.30,-0.5057,0.62,FDA decision 2026-10-30 (10-Q); FDA flagged AA eligibility issue; rival Papzimeos already fully approved; cash only into Q1 2027; below 1 USD floor
 2026-10-26,SVRA,4.52,Hold,0.0675,0.1947,0.78,-0.4690,0.17,New: FDA decision 2026-11-22 after major-amendment extension (10-Q 8/11); positive IMPALA-2; no AdCom; cash about 0.7 USD/sh; +7% on 10/26
 2026-10-26,BVS,14.72,Hold,0.0207,0.2908,0.35,-0.2188,0.35,New: sale review since 2026-08-05 after unsolicited bid and other interest (8-K); Evercore hired; no timetable; trades near 52w high
+2026-10-27,PYPD,5.6,Buy,0.0830,0.2500,0.78,-0.5089,0.22,"Pre-market 5.60 (+5.9%) after Oppenheimer starts at Outperform, US$10 target (10/27); FDA decision Nov 28 unchanged"
+2026-10-27,VNDA,4.31,Hold,0.0684,0.3341,0.45,-0.2459,0.35,"Phase III 3601 (NEREUS, GLP-1 vomiting) met its main goal p=0.006 (10/27); pre-market 4.31 (+9.4%); Q3 Oct 28; Quimilza FDA Dec 12"
