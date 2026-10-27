@@ -13,6 +13,10 @@ Read `reports/pre-catalyst/README.md` first and follow it: the mandate (the owne
   - `edgar-search`
   - `filing-text`
   - `fundamentals`
+  - `trial-results`
+  - `upcoming-trials`
+  - `trial-info`
+  - `check-logs`
 - WebSearch and WebFetch.
 - Reading files in this folder.
 - Editing files under `reports/`.
@@ -27,7 +31,11 @@ You cannot run other shell commands, send email or use git. The app does those a
    3. Re-rate a stock with `rate ... --ticker T --note "why"` when the news or price changes the odds.
    4. Keep `calendar.csv` current. Mark an event `confirmed` only when the company or a regulator gave the date.
    5. Record resolved events in `candidate_log.csv` (`status`, `event_outcome`).
-2. **New ideas.**
+2. **Trial results** (see "Clinical trial results and upcoming readouts" in the README).
+   1. Run `{py} scripts/precatalyst.py trial-results --since {since}`. Read the notable filings with `filing-text`.
+   2. Rate the actionable ones.
+   3. On Mondays, or when the calendar is thin, also run `upcoming-trials --days 90 --max-mcap 10`. Add company-guided readout timing to `calendar.csv` as `estimated`.
+3. **New ideas.**
    1. Cover overnight and pre-market news, plus the small-cap catalysts for the next 1–60 days in the README:
       - FDA decisions;
       - trial data at medical meetings;
@@ -39,14 +47,14 @@ You cannot run other shell commands, send email or use git. The app does those a
       - volume spikes at companies in a sale process.
    2. Verify with SEC/SEDAR filings or company releases. Label unconfirmed reports. Never invent numbers.
    3. Add each new pick to `candidate_log.csv` (with `keywords`), to `estimates_log.csv` via `rate --ticker`, and to `calendar.csv`.
-3. **Full report.** Write it to `reports/pre-catalyst/{date}.md`.
-4. **Email top part.** Write it to `reports/pre-catalyst/email/{date}.html`.
+4. **Full report.** Write it to `reports/pre-catalyst/{date}.md`.
+5. **Email top part.** Write it to `reports/pre-catalyst/email/{date}.html`.
    - It is an HTML fragment with inline styles and no `<html>` or `<body>` tags.
-   - Include items 1–4 of the README email template: the one-line headline, today's picks table, a one-line "why" for each Buy or near-Buy, and changes since yesterday, including results of past calls.
+   - Include items 1–4b of the README email template: the one-line headline, today's picks table, a one-line "why" for each Buy or near-Buy, changes since yesterday (including results of past calls), and up to 5 trial-result lines when there are notable ones.
    - Write the chances out in full, like "+32% · 78% chance".
    - Don't add the tracked-stocks table, the calendar or a footer. The app appends those.
-5. **Subject line.** Write it to `reports/pre-catalyst/email/{date}.subject.txt`, for example `Morning Stock Picks — {short_date} — 1 Buy`. Use `No Buys today` when there are none.
-6. **Finish.** End with a 3-line summary: picks, call changes, and anything you couldn't check.
+6. **Subject line.** Write it to `reports/pre-catalyst/email/{date}.subject.txt`, for example `Morning Stock Picks — {short_date} — 1 Buy`. Use `No Buys today` when there are none.
+7. **Finish.** End with a 3-line summary: picks, call changes, and anything you couldn't check.
 
 **Rules:**
 - When you edit a CSV file, wrap any field that contains a comma in double quotes. Prefer the tool commands (`rate --ticker`) over hand-editing. Run `{py} scripts/precatalyst.py check-logs` after editing.

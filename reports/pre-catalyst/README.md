@@ -69,6 +69,42 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - Treat acquisition premiums as hypothetical unless an offer is confirmed.
 - **Tracking:** For each candidate, log first-seen date, score, evidence, price, catalyst, later announcements, 1/5/20/60 trading-day returns, outcome and invalidation. Avoid look-ahead bias and survivorship bias.
 
+## Clinical trial results and upcoming readouts (added 2026-10-27)
+
+Small drug companies often move 30–90% in a day on trial results, which makes them the biggest short-term catalysts in the universe.
+
+**Every morning:**
+1. **Run `trial-results --since <last email>`.** It lists 8-K/6-K filings from drug, biotech and device companies that report trial results. It flags them positive (a "met its primary endpoint" style phrase), negative ("did not meet") or check (read it), and shows the stock's latest move.
+2. **Read each notable one** with `filing-text --url ... --pattern "primary endpoint|p=|p<|placebo"`. Note:
+   - the main goal, and whether it was met;
+   - the size of the effect against placebo or standard care;
+   - safety;
+   - the next step (filing for approval, Phase 3, partnering);
+   - the cash runway.
+3. **Compare the result with the price move**, including pre-market.
+   - Weak data plus a big jump, or strong data plus a small move or a drop, are the cases worth rating.
+   - A clean positive Phase 3 in a well-funded company that has fallen on financing fears can be a Buy.
+   - A positive headline on a secondary goal, after missing the main one, is usually a Sell.
+4. **Rate it** with `rate --ticker` when it's actionable, and add it to the tracker. Then put the top readouts in the email's "Trial results" section.
+
+**For upcoming readouts:**
+1. **Run `upcoming-trials --days 90 --max-mcap 10`** at least on Mondays, and when the calendar looks thin. It lists Phase 2/3 trials at listed companies whose main data collection finishes within the window, smallest companies first.
+   - Topline results usually come **1–3 months after** the finish date in that listing.
+2. **Confirm the timing** the company itself gives with `edgar-search --q '"topline data" "fourth quarter of 2026"'` (or similar), or from its latest 10-Q.
+3. **Add expected readouts to `calendar.csv`.** Use status `estimated` for timing a company has guided to; `confirmed` is only for a fixed date, such as a medical-meeting presentation.
+4. **Look up the design** with `trial-info NCT…`: size, placebo control, main goal. A small, open-label or single-arm trial is weaker evidence than a large placebo-controlled one.
+
+**Base rates for scenarios** (industry studies; treat as rough):
+
+| Stage | Chance the trial succeeds |
+|---|---|
+| Phase 2 | about 30% |
+| Phase 3 | about 55–60% |
+| A trial of a drug whose earlier trials succeeded | higher |
+| A drug already rejected once, or with a negative advisory panel | lower |
+
+Price reactions are lopsided. A failure often costs 50–90% for a single-drug company. A success is often +20–100%, less when it's already priced in.
+
 ## Extra checks added after the 2026-10-26 post-mortem
 
 The 2026-10-26 post-mortem looked at that day's top movers and found three kinds of public signal that existed beforehand. Run these checks every day.
@@ -120,6 +156,12 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
      At most about 8 rows.
   3. **Why:** one short line per Buy or near-Buy name.
   4. **Changes since yesterday:** new, removed, call changes, and results of past calls once events resolve, as one line each.
+  4b. **Trial results** (only when there are notable ones): at most 5 lines, one per readout since the last email, for drug and medical companies under about US$10B. Each line covers:
+      - company and ticker;
+      - what was tested, in plain words ("a pill for X");
+      - whether it worked ("met its main goal" or "missed it"), with the key number;
+      - the stock's move;
+      - our take ("already priced in", "overreaction worth watching", or "now a Buy/Sell because…").
   5. **Tracked stocks and Calendar:** paste the HTML produced by `email-sections` (see "Tracking news, prices and estimates" below). It replaces a separate key-dates list.
   6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
 - **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").

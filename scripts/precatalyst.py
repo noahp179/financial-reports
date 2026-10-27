@@ -15,6 +15,12 @@ Commands:
                                plain text of an SEC filing, or the passages matching a pattern
   fundamentals TICKER          trailing-12-month revenue, profit, cash flow, cash, debt, shares
   check-logs                   repair CSV rows whose unquoted commas spilled into extra columns
+  trial-results [--since DATE] trial readouts filed with the SEC (8-K/6-K), flagged positive or
+                               negative, with the stock's latest move
+  upcoming-trials [--days N] [--max-mcap B]
+                               listed companies whose Phase 2/3 trials finish soon on
+                               ClinicalTrials.gov (likely data readouts), smallest first
+  trial-info NCT_ID            design, size, primary goal and status of one trial
 
 Market data comes from the public Yahoo Finance chart endpoint. Prices may be delayed.
 """
@@ -834,6 +840,256 @@ def cmd_fundamentals(args: argparse.Namespace) -> None:
         print(f"  free cash flow: {fcf / 1e6:,.1f}")
 
 
+CTGOV_URL = "https://clinicaltrials.gov/api/v2/studies"
+POSITIVE_PHRASES = (
+    "met its primary endpoint",
+    "met the primary endpoint",
+    "achieved its primary endpoint",
+    "achieved the primary endpoint",
+    "primary endpoint was met",
+    "statistically significant improvement",
+)
+NEGATIVE_PHRASES = (
+    "did not meet its primary endpoint",
+    "did not meet the primary endpoint",
+    "did not achieve its primary endpoint",
+    "did not achieve the primary endpoint",
+    "failed to meet its primary endpoint",
+    "failed to meet the primary endpoint",
+    "did not reach statistical significance on the primary endpoint",
+)
+NEUTRAL_PHRASES = ("topline results", "top-line results", "topline data", "top-line data")
+# SEC industry codes for drugs, biologics, diagnostics, medical devices and medical research.
+HEALTH_SICS = {"2833", "2834", "2835", "2836", "3826", "3841", "3842", "3843", "3844", "3845"}
+HEALTH_SICS |= {"3851", "5047", "5122", "8000", "8011", "8071", "8090", "8731", "8733"}
+HEALTH_NAME = re.compile(
+    r"bio|pharm|therap|medic|onco|immun|genetic|genomic|vaccin|diagnos|clinic|life sci", re.I
+)
+NAME_SUFFIXES = {
+    "inc",
+    "incorporated",
+    "corp",
+    "corporation",
+    "co",
+    "company",
+    "ltd",
+    "limited",
+    "plc",
+    "llc",
+    "lp",
+    "sa",
+    "ag",
+    "nv",
+    "se",
+    "holdings",
+    "holding",
+    "group",
+    "the",
+}
+
+
+def efts_hits(phrase: str, forms: str, since: str) -> list[dict]:
+    params = {
+        "q": f'"{phrase}"',
+        "forms": forms,
+        "dateRange": "custom",
+        "startdt": since,
+        "enddt": dt.date.today().isoformat(),
+    }
+    try:
+        return get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)["hits"]["hits"]
+    except (urllib.error.URLError, TimeoutError, KeyError) as exc:
+        print(f"  (search for '{phrase}' failed: {exc})")
+        return []
+
+
+def ticker_of(display_name: str) -> str:
+    match = re.search(r"\(([A-Z][A-Z0-9.\-]*)(?:,[^)]*)?\)", display_name)
+    return match.group(1) if match else ""
+
+
+def last_move(symbol: str) -> str:
+    try:
+        meta, rows = fetch_daily(symbol, "1mo")
+    except Exception:  # noqa: BLE001 - price is optional context
+        return "price n/a"
+    offset = dt.timedelta(seconds=meta.get("gmtoffset", 0))
+    day = (dt.datetime.fromtimestamp(meta["regularMarketTime"], dt.UTC) + offset).date()
+    before = [r[1] for r in rows if r[0] < day]
+    price = meta["regularMarketPrice"]
+    if not before:
+        return f"${price:,.2f}"
+    return f"${price:,.2f} ({(price / before[-1] - 1) * 100:+.0f}% on {day:%b} {day.day})"
+
+
+def cmd_trial_results(args: argparse.Namespace) -> None:
+    since = args.since or (dt.date.today() - dt.timedelta(days=3)).isoformat()
+    found: dict[str, dict] = {}
+    for tone, phrases in (
+        ("negative", NEGATIVE_PHRASES),
+        ("positive", POSITIVE_PHRASES),
+        ("check", NEUTRAL_PHRASES),
+    ):
+        for phrase in phrases:
+            for hit in efts_hits(phrase, "8-K,6-K", since):
+                src = hit["_source"]
+                healthcare = bool(set(src.get("sics", [])) & HEALTH_SICS) or bool(
+                    HEALTH_NAME.search(src["display_names"][0])
+                )
+                if not (args.all or healthcare or "primary endpoint" in phrase):
+                    continue
+                accession, _, doc = hit["_id"].partition(":")
+                key = accession
+                entry = found.setdefault(
+                    key,
+                    {
+                        "date": src["file_date"],
+                        "company": src["display_names"][0],
+                        "ticker": ticker_of(src["display_names"][0]),
+                        "tone": tone,
+                        "url": f"https://www.sec.gov/Archives/edgar/data/{int(src['ciks'][0])}/"
+                        f"{accession.replace('-', '')}/{doc}",
+                    },
+                )
+                if tone == "negative":
+                    entry["tone"] = "negative"
+    rows = sorted(found.values(), key=lambda e: (e["date"], e["company"]), reverse=True)
+    print(f"{len(rows)} filings mentioning trial results since {since}")
+    print("tone: positive / negative = a results phrase was found; check = read the filing")
+    for entry in rows:
+        move = last_move(entry["ticker"]) if entry["ticker"] and args.prices else ""
+        print(
+            f"{entry['date']} {entry['tone']:8s} {entry['ticker'] or '-':6s} "
+            f"{entry['company'][:45]:45s} {move:28s} {entry['url']}"
+        )
+
+
+def normalize_company(name: str) -> str:
+    words = re.sub(r"[^a-z0-9 ]", " ", name.lower()).split()
+    return " ".join(w for w in words if w not in NAME_SUFFIXES)
+
+
+def sec_company_index() -> dict[str, tuple[str, int]]:
+    """Normalized SEC company name -> (ticker, CIK); the first (main) ticker wins."""
+    index: dict[str, tuple[str, int]] = {}
+    for row in get_json(SEC_TICKERS_URL, SEC_HEADERS).values():
+        index.setdefault(normalize_company(row["title"]), (row["ticker"], row["cik_str"]))
+    return index
+
+
+def match_sponsor(sponsor: str, index: dict[str, tuple[str, int]]) -> tuple[str, int] | None:
+    key = normalize_company(sponsor)
+    if key in index:
+        return index[key]
+    for name, value in index.items():
+        if len(name) >= 8 and (key.startswith(name + " ") or name.startswith(key + " ")):
+            return value
+    return None
+
+
+def market_cap(ticker: str, cik: int) -> float | None:
+    try:
+        shares = get_json(
+            f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik:010d}"
+            "/dei/EntityCommonStockSharesOutstanding.json",
+            SEC_HEADERS,
+        )["units"]["shares"]
+        count = max(shares, key=lambda r: r["end"])["val"]
+        price = fetch_daily(ticker, "5d")[0]["regularMarketPrice"]
+    except Exception:  # noqa: BLE001 - foreign filers often lack the share count
+        return None
+    return count * price
+
+
+def cmd_upcoming_trials(args: argparse.Namespace) -> None:
+    today = dt.date.today()
+    start = today - dt.timedelta(days=args.lookback)
+    end = today + dt.timedelta(days=args.days)
+    params = {
+        "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY AND AREA[Phase](PHASE2 OR PHASE3) "
+        f"AND AREA[PrimaryCompletionDate]RANGE[{start},{end}]",
+        "filter.overallStatus": "ACTIVE_NOT_RECRUITING,COMPLETED",
+        "fields": "NCTId,BriefTitle,Phase,OverallStatus,PrimaryCompletionDate,LeadSponsorName,"
+        "EnrollmentCount,HasResults",
+        "pageSize": "1000",
+    }
+    studies: list[dict] = []
+    token = None
+    while True:
+        query = dict(params, **({"pageToken": token} if token else {}))
+        data = get_json(f"{CTGOV_URL}?{urllib.parse.urlencode(query)}")
+        studies += data.get("studies", [])
+        token = data.get("nextPageToken")
+        if not token or len(studies) >= 5000:
+            break
+    index = sec_company_index()
+    caps: dict[str, float | None] = {}
+    rows = []
+    for study in studies:
+        proto = study["protocolSection"]
+        sponsor = proto["sponsorCollaboratorsModule"]["leadSponsor"]["name"]
+        match = match_sponsor(sponsor, index)
+        if not match:
+            continue
+        ticker, cik = match
+        if ticker not in caps:
+            caps[ticker] = market_cap(ticker, cik)
+        cap = caps[ticker]
+        if cap is not None and (cap > args.max_mcap * 1e9 or cap < 20e6):
+            continue
+        done = proto["statusModule"]["primaryCompletionDateStruct"]
+        rows.append(
+            (
+                cap or 0,
+                ticker,
+                sponsor,
+                done.get("date", "?"),
+                done.get("type", "ESTIMATED").lower(),
+                "/".join(p.replace("PHASE", "P") for p in proto["designModule"].get("phases", [])),
+                proto["designModule"].get("enrollmentInfo", {}).get("count", "?"),
+                proto["identificationModule"]["nctId"],
+                proto["identificationModule"]["briefTitle"],
+            )
+        )
+    rows.sort(key=lambda r: (r[0] == 0, r[0], r[3]))
+    print(
+        f"{len(rows)} Phase 2/3 trials at listed companies under ${args.max_mcap:g}B, finishing "
+        f"{start}..{end}. Topline data usually follows 1–3 months after the finish date."
+    )
+    for cap, ticker, sponsor, date, kind, phase, enrolled, nct, title in rows:
+        cap_text = f"${cap / 1e9:.2f}B" if cap else "cap n/a"
+        print(
+            f"{ticker:6s} {cap_text:9s} {phase:6s} done {date} ({kind}) n={enrolled} {nct} "
+            f"{sponsor[:28]} | {title[:70]}"
+        )
+
+
+def cmd_trial_info(args: argparse.Namespace) -> None:
+    proto = get_json(f"{CTGOV_URL}/{args.nct_id}")["protocolSection"]
+    ident, status, design = (
+        proto["identificationModule"],
+        proto["statusModule"],
+        proto["designModule"],
+    )
+    print(f"{ident['nctId']}: {ident.get('officialTitle') or ident['briefTitle']}")
+    print(f"  sponsor: {proto['sponsorCollaboratorsModule']['leadSponsor']['name']}")
+    print(f"  phase: {design.get('phases')}  status: {status['overallStatus']}")
+    print(f"  enrollment: {design.get('enrollmentInfo')}")
+    print(f"  primary completion: {status.get('primaryCompletionDateStruct')}")
+    print(f"  study completion: {status.get('completionDateStruct')}")
+    info = design.get("designInfo", {})
+    masking = info.get("maskingInfo", {}).get("masking")
+    print(
+        f"  design: {info.get('allocation')} / {info.get('interventionModel')} / masking {masking}"
+    )
+    for outcome in proto.get("outcomesModule", {}).get("primaryOutcomes", []):
+        print(f"  primary outcome: {outcome.get('measure')} ({outcome.get('timeFrame')})")
+    for arm in proto.get("armsInterventionsModule", {}).get("armGroups", []):
+        print(f"  arm: {arm.get('label')} [{arm.get('type')}]")
+    print(f"  conditions: {proto.get('conditionsModule', {}).get('conditions')}")
+    print(f"  link: https://clinicaltrials.gov/study/{ident['nctId']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
@@ -887,6 +1143,22 @@ def main() -> None:
     funda = sub.add_parser("fundamentals")
     funda.add_argument("ticker")
     funda.set_defaults(func=cmd_fundamentals)
+
+    results = sub.add_parser("trial-results")
+    results.add_argument("--since", help="YYYY-MM-DD (default: three days ago)")
+    results.add_argument("--no-prices", dest="prices", action="store_false")
+    results.add_argument("--all", action="store_true", help="include non-healthcare filers")
+    results.set_defaults(func=cmd_trial_results)
+
+    upcoming = sub.add_parser("upcoming-trials")
+    upcoming.add_argument("--days", type=int, default=90, help="finish dates up to N days ahead")
+    upcoming.add_argument("--lookback", type=int, default=45, help="and up to N days back")
+    upcoming.add_argument("--max-mcap", type=float, default=10.0, help="US$ billions")
+    upcoming.set_defaults(func=cmd_upcoming_trials)
+
+    trial = sub.add_parser("trial-info")
+    trial.add_argument("nct_id")
+    trial.set_defaults(func=cmd_trial_info)
 
     args = parser.parse_args()
     args.func(args)
