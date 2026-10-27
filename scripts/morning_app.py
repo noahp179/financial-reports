@@ -20,6 +20,7 @@ import json
 import os
 import platform
 import plistlib
+import re
 import shutil
 import smtplib
 import subprocess
@@ -492,9 +493,52 @@ def cmd_unschedule(_: argparse.Namespace) -> None:
 # ---------------------------------------------------------------- setup and status
 
 
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+YES, NO = {"y", "yes"}, {"n", "no"}
+PROTECTED_MAC_FOLDERS = ("Desktop", "Documents", "Downloads", "Library/Mobile Documents")
+
+
 def ask(question: str, default: str = "") -> str:
-    shown = f" [{default}]" if default else ""
+    shown = f" (press Enter for {default})" if default else ""
     return input(f"{question}{shown}: ").strip() or default
+
+
+def ask_email(question: str, default: str = "") -> str:
+    default = default if EMAIL_PATTERN.match(default or "") else ""
+    while True:
+        answer = ask(question, default)
+        if answer.lower() in YES and default:
+            return default
+        if EMAIL_PATTERN.match(answer):
+            return answer
+        print(f"  '{answer}' isn't an email address. Type one like name@gmail.com.")
+
+
+def ask_yes_no(question: str, default: bool) -> bool:
+    while True:
+        answer = ask(f"{question} (yes/no)", "yes" if default else "no").lower()
+        if answer in YES | NO:
+            return answer in YES
+        print("  Please answer yes or no.")
+
+
+def ask_time(question: str, default: str) -> tuple[int, int]:
+    while True:
+        answer = ask(question, default)
+        match = re.fullmatch(r"(\d{1,2}):(\d{2})", answer)
+        if match and int(match[1]) < 24 and int(match[2]) < 60:
+            return int(match[1]), int(match[2])
+        print("  Use 24-hour HH:MM, for example 06:30.")
+
+
+def protected_mac_folder() -> str | None:
+    """macOS blocks scheduled background jobs from Desktop, Documents, Downloads and iCloud."""
+    if platform.system() != "Darwin":
+        return None
+    for folder in PROTECTED_MAC_FOLDERS:
+        if REPO.is_relative_to(Path.home() / folder):
+            return folder
+    return None
 
 
 def cmd_test_email(_: argparse.Namespace) -> None:
@@ -513,6 +557,15 @@ def cmd_setup(args: argparse.Namespace) -> None:
         )
     cfg = load_json(CONFIG_FILE)
     print("Morning Stock Picks: local setup\n")
+    blocked = protected_mac_folder()
+    if blocked and not args.no_schedule:
+        sys.exit(
+            f"This folder is inside your {blocked} folder, and macOS stops scheduled background "
+            "jobs from reading it, so the morning run would fail.\nMove it to your home folder, "
+            "then run setup again:\n\n"
+            f'  mv "{REPO}" ~/precatalyst\n  cd ~/precatalyst\n'
+            "  python3 scripts/morning_app.py setup\n"
+        )
     claude = find_claude()
     if claude:
         version = subprocess.run([claude, "--version"], capture_output=True, text=True)
@@ -528,18 +581,32 @@ def cmd_setup(args: argparse.Namespace) -> None:
             "Claude Code is not installed yet, so emails will only carry tracking until it is.\n"
             f"  Install: {install}\n  Then run `claude` once to log in, and re-run this setup.\n"
         )
-    cfg["gmail_user"] = args.gmail or ask("Your Gmail address", cfg.get("gmail_user", ""))
-    cfg["email_to"] = args.to or ask("Send the email to", cfg.get("email_to") or cfg["gmail_user"])
+    cfg["gmail_user"] = args.gmail or ask_email(
+        "Your Gmail address (the email is sent from it)", cfg.get("gmail_user", "")
+    )
+    cfg["email_to"] = args.to or ask_email(
+        "Email address that should receive the morning email",
+        cfg.get("email_to") if EMAIL_PATTERN.match(cfg.get("email_to", "")) else cfg["gmail_user"],
+    )
     password = os.environ.get("PRECATALYST_APP_PASSWORD") or getpass.getpass(
-        "Gmail app password (16 letters; create at https://myaccount.google.com/apppasswords): "
+        "Gmail app password (16 letters from https://myaccount.google.com/apppasswords; "
+        "typing is hidden, press Enter to keep the saved one): "
     )
     cfg["app_password"] = password.replace(" ", "") or cfg.get("app_password", "")
-    run_time = args.time or ask("Weekday run time, 24h local time", cfg.get("run_time", "06:30"))
-    hour, minute = (int(x) for x in run_time.split(":"))
+    if not cfg["app_password"]:
+        sys.exit("A Gmail app password is needed. Create one, then run setup again.")
+    if args.time:
+        hour, minute = (int(x) for x in args.time.split(":"))
+    else:
+        hour, minute = ask_time("Weekday run time, 24-hour", cfg.get("run_time", "06:30"))
     cfg["run_time"] = f"{hour:02d}:{minute:02d}"
     has_remote = git("remote").stdout.strip() != ""
-    sync_default = "y" if cfg.get("git_sync", has_remote) else "n"
-    cfg["git_sync"] = (args.git_sync or ask("Sync reports with GitHub (y/n)", sync_default)) == "y"
+    if args.git_sync:
+        cfg["git_sync"] = args.git_sync == "y"
+    else:
+        cfg["git_sync"] = ask_yes_no(
+            "Also save reports to GitHub each morning", cfg.get("git_sync", has_remote)
+        )
     save_json(CONFIG_FILE, cfg, private=True)
     print(f"Settings saved to {CONFIG_FILE}")
     try:
@@ -549,6 +616,8 @@ def cmd_setup(args: argparse.Namespace) -> None:
             "Gmail rejected the login. Check the address and app password (2-Step Verification "
             "must be on for app passwords), then run setup again."
         )
+    except smtplib.SMTPException as exc:
+        sys.exit(f"Gmail refused the test email ({exc}). Run setup again and check the addresses.")
     if not args.no_schedule:
         print(f"Scheduled: {install_schedule(hour, minute)} at {cfg['run_time']}, Mon–Fri.")
     print(
