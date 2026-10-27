@@ -1,5 +1,7 @@
 # Daily Pre-Catalyst Stock Scanner
 
+**Run it on your own computer:** see [`LOCAL_APP.md`](../../LOCAL_APP.md). There, `scripts/morning_app.py` schedules the weekday run, starts Claude Code for research using `daily_prompt.md`, and sends the email through Gmail.
+
 This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and the historical candidate log (`candidate_log.csv`).
 
 ## Mandate (summary of the owner's standing instructions)

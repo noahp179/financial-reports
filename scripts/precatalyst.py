@@ -9,6 +9,11 @@ Commands:
   track-news [--since DATE]    append new news and SEC filings for active names to news_log.csv
   email-sections [--since DATE] [--weeks N] [--out PATH]
                                HTML for the morning email: tracked-stock updates and a calendar
+  edgar-search --q '"PDUFA date of December"' [--forms 8-K,10-Q] [--since DATE] [--cik N]
+                               SEC full-text search; prints date, form, company and filing link
+  filing-text --url URL [--pattern REGEX] [--chars N]
+                               plain text of an SEC filing, or the passages matching a pattern
+  fundamentals TICKER          trailing-12-month revenue, profit, cash flow, cash, debt, shares
 
 Market data comes from the public Yahoo Finance chart endpoint. Prices may be delayed.
 """
@@ -21,6 +26,7 @@ import datetime as dt
 import html
 import json
 import math
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -71,8 +77,9 @@ def fetch_daily(ticker: str, rng: str = "1y") -> tuple[dict, list[tuple[dt.date,
     with urllib.request.urlopen(req, timeout=30) as resp:
         res = json.loads(resp.read())["chart"]["result"][0]
     quote = res["indicators"]["quote"][0]
+    offset = dt.timedelta(seconds=res["meta"].get("gmtoffset", 0))
     rows = [
-        (dt.date.fromtimestamp(ts), close, vol or 0)
+        ((dt.datetime.fromtimestamp(ts, dt.UTC) + offset).date(), close, vol or 0)
         for ts, close, vol in zip(res["timestamp"], quote["close"], quote["volume"], strict=False)
         if close is not None
     ]
@@ -99,22 +106,30 @@ def cmd_snapshot(args: argparse.Namespace) -> None:
         except Exception as exc:  # noqa: BLE001 - report and continue with the next ticker
             print(f"{ticker}: ERROR {exc}")
             continue
-        closes = [r[1] for r in rows]
-        vols = [r[2] for r in rows]
         price = meta["regularMarketPrice"]
         stamp = dt.datetime.fromtimestamp(meta["regularMarketTime"], dt.UTC).strftime(
             "%Y-%m-%d %H:%M UTC"
         )
-        avg20 = sum(vols[-21:-1]) / 20 if len(vols) > 21 else float("nan")
+        offset = dt.timedelta(seconds=meta.get("gmtoffset", 0))
+        market_day = (dt.datetime.fromtimestamp(meta["regularMarketTime"], dt.UTC) + offset).date()
+        # After the close Yahoo can drop the current session's daily bar for a while, so
+        # split completed sessions from the latest one and take its figures from the quote.
+        before = [r for r in rows if r[0] < market_day]
+        today_vol = next((r[2] for r in rows if r[0] == market_day), None)
+        if today_vol is None:
+            today_vol = meta.get("regularMarketVolume") or 0
+        closes = [r[1] for r in before] + [price]
+        vols = [r[2] for r in before]
+        avg20 = sum(vols[-20:]) / 20 if len(vols) >= 20 else float("nan")
         rv250 = realized_vol(closes, 250)
         lo, hi = price_range(price, rv250, 63)
-        prev = closes[-2] if len(closes) > 1 else float("nan")
+        prev = before[-1][1] if before else float("nan")
         ret_1m = (closes[-1] / closes[-22] - 1) * 100 if len(closes) > 22 else float("nan")
         parts = [
             f"{ticker} {meta.get('fullExchangeName', '?')} {meta.get('currency', '?')}",
             f"price={price:.3f} @ {stamp}",
             f"prev_close={prev:.3f} chg={(price / prev - 1) * 100:+.1f}%",
-            f"vol={vols[-1]:,} avg20={avg20:,.0f} rvol={vols[-1] / avg20:.2f}",
+            f"vol={today_vol:,} avg20={avg20:,.0f} rvol={today_vol / avg20:.2f}",
             "(rvol is partial-day if intraday)",
             f"1m={ret_1m:+.1f}%",
             f"RV20={realized_vol(closes, 20):.0%} RV60={realized_vol(closes, 60):.0%}",
@@ -613,6 +628,167 @@ def cmd_email_sections(args: argparse.Namespace) -> None:
     print(f"HTML written to {args.out}")
 
 
+EFTS_URL = "https://efts.sec.gov/LATEST/search-index?"
+COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
+FLOW_CONCEPTS = {
+    "revenue": (
+        "Revenues",
+        "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "SalesRevenueNet",
+    ),
+    "operating_income": ("OperatingIncomeLoss",),
+    "d_and_a": (
+        "DepreciationDepletionAndAmortization",
+        "DepreciationAndAmortization",
+        "DepreciationAmortizationAndAccretionNet",
+    ),
+    "net_income": ("NetIncomeLoss",),
+    "operating_cash_flow": ("NetCashProvidedByUsedInOperatingActivities",),
+    "capex": ("PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"),
+}
+BALANCE_CONCEPTS = {
+    "cash": (
+        "CashAndCashEquivalentsAtCarryingValue",
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+    ),
+    "short_term_investments": (
+        "ShortTermInvestments",
+        "MarketableSecuritiesCurrent",
+        "AvailableForSaleSecuritiesDebtSecuritiesCurrent",
+    ),
+    "long_term_debt": ("LongTermDebtNoncurrent", "LongTermDebt"),
+    "current_debt": ("LongTermDebtCurrent", "DebtCurrent", "ShortTermBorrowings"),
+    "total_liabilities": ("Liabilities",),
+}
+
+
+def html_to_text(raw: str) -> str:
+    raw = re.sub(r"(?is)<(script|style).*?</\1>", " ", raw)
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", raw))).strip()
+
+
+def cmd_edgar_search(args: argparse.Namespace) -> None:
+    params = {
+        "q": args.q,
+        "dateRange": "custom",
+        "startdt": args.since,
+        "enddt": args.until or dt.date.today().isoformat(),
+    }
+    if args.forms:
+        params["forms"] = args.forms
+    if args.cik:
+        params["ciks"] = f"{int(args.cik):010d}"
+    data = get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)
+    hits = data["hits"]["hits"]
+    print(f"{data['hits']['total']['value']} matches (showing {len(hits)})")
+    seen = set()
+    for hit in hits:
+        src = hit["_source"]
+        accession, _, doc = hit["_id"].partition(":")
+        key = (src["display_names"][0], src["form"])
+        if key in seen:
+            continue
+        seen.add(key)
+        cik = int(src["ciks"][0])
+        url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{accession.replace('-', '')}/{doc}"
+        print(f"{src['file_date']} {src['form']:14s} {src['display_names'][0][:60]:60s} {url}")
+
+
+def cmd_filing_text(args: argparse.Namespace) -> None:
+    req = urllib.request.Request(args.url, headers=SEC_HEADERS)
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        text = html_to_text(resp.read().decode("utf-8", "ignore"))
+    if not args.pattern:
+        print(text[: args.chars])
+        return
+    matches = list(re.finditer(args.pattern, text, re.IGNORECASE))
+    print(f"{len(matches)} matches")
+    for match in matches[: args.max_matches]:
+        start = max(0, match.start() - 300)
+        print("…" + text[start : match.start() + args.chars] + "…\n")
+
+
+def days_between(start: str, end: str) -> int:
+    return (dt.date.fromisoformat(end) - dt.date.fromisoformat(start)).days
+
+
+def trailing_twelve_months(facts: dict, names: tuple[str, ...]) -> tuple[float, str, str] | None:
+    """Latest fiscal year, rolled forward with the current year-to-date when one exists."""
+    for name in names:
+        rows = [
+            r
+            for r in facts.get(name, {}).get("units", {}).get("USD", [])
+            if r.get("start") and r.get("form", "").split("/")[0] in ("10-K", "10-Q", "20-F")
+        ]
+        annual = [r for r in rows if 350 <= days_between(r["start"], r["end"]) <= 380]
+        if not annual:
+            continue
+        year = max(annual, key=lambda r: r["end"])
+        latest_end = max(r["end"] for r in rows)
+        if year["end"] == latest_end:
+            return year["val"], "fiscal year", year["end"]
+        ytd = [
+            r for r in rows if r["end"] == latest_end and days_between(r["start"], r["end"]) > 80
+        ]
+        if not ytd:
+            return year["val"], "fiscal year", year["end"]
+        current = max(ytd, key=lambda r: days_between(r["start"], r["end"]))
+        length = days_between(current["start"], current["end"])
+        prior = [
+            r
+            for r in rows
+            if abs(days_between(r["start"], r["end"]) - length) < 10
+            and abs(days_between(r["end"], current["end"]) - 365) < 10
+        ]
+        if prior:
+            return year["val"] + current["val"] - prior[0]["val"], "12 months", latest_end
+        return year["val"], "fiscal year", year["end"]
+    return None
+
+
+def latest_balance(facts: dict, names: tuple[str, ...]) -> tuple[float, str, str] | None:
+    for name in names:
+        rows = facts.get(name, {}).get("units", {}).get("USD", [])
+        if rows:
+            row = max(rows, key=lambda r: (r["end"], r.get("filed", "")))
+            return row["val"], "balance", row["end"]
+    return None
+
+
+def cmd_fundamentals(args: argparse.Namespace) -> None:
+    ciks = {v["ticker"]: v["cik_str"] for v in get_json(SEC_TICKERS_URL, SEC_HEADERS).values()}
+    cik = ciks.get(args.ticker.upper().split(".")[0])
+    if cik is None:
+        sys.exit(f"{args.ticker}: no SEC filer found (Canadian-only names file on SEDAR+)")
+    data = get_json(COMPANY_FACTS_URL.format(cik=cik), SEC_HEADERS)
+    facts = {**data["facts"].get("ifrs-full", {}), **data["facts"].get("us-gaap", {})}
+    print(f"{data['entityName']} (CIK {cik}); values in US$ millions")
+    stale_before = (dt.date.today() - dt.timedelta(days=400)).isoformat()
+    values: dict[str, float] = {}
+    for label, concepts in (*FLOW_CONCEPTS.items(), *BALANCE_CONCEPTS.items()):
+        getter = trailing_twelve_months if label in FLOW_CONCEPTS else latest_balance
+        found = getter(facts, concepts)
+        if found is None:
+            print(f"  {label:24s} not reported")
+            continue
+        value, kind, end = found
+        stale = " (STALE, ignore)" if end < stale_before else ""
+        if not stale:
+            values[label] = value
+        print(f"  {label:24s} {value / 1e6:>12,.1f}  {kind} to {end}{stale}")
+    shares = data["facts"].get("dei", {}).get("EntityCommonStockSharesOutstanding", {})
+    share_rows = shares.get("units", {}).get("shares", [])
+    if share_rows:
+        row = max(share_rows, key=lambda r: r["end"])
+        print(f"  {'shares_outstanding':24s} {row['val'] / 1e6:>12,.2f}M at {row['end']}")
+    if "operating_income" in values and "d_and_a" in values:
+        ebitda = values["operating_income"] + values["d_and_a"]
+        print(f"  approx EBITDA (op. income + D&A): {ebitda / 1e6:,.1f}")
+    if "operating_cash_flow" in values and "capex" in values:
+        fcf = values["operating_cash_flow"] - values["capex"]
+        print(f"  free cash flow: {fcf / 1e6:,.1f}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
@@ -645,6 +821,25 @@ def main() -> None:
     sections.add_argument("--weeks", type=int, default=5)
     sections.add_argument("--out", default="email_sections.html")
     sections.set_defaults(func=cmd_email_sections)
+
+    search = sub.add_parser("edgar-search")
+    search.add_argument("--q", required=True, help="phrase(s), e.g. '\"PDUFA date of December\"'")
+    search.add_argument("--forms", help="comma-separated form types, e.g. 8-K,10-Q,6-K")
+    search.add_argument("--since", default=(dt.date.today() - dt.timedelta(days=90)).isoformat())
+    search.add_argument("--until")
+    search.add_argument("--cik")
+    search.set_defaults(func=cmd_edgar_search)
+
+    filing = sub.add_parser("filing-text")
+    filing.add_argument("--url", required=True)
+    filing.add_argument("--pattern", help="case-insensitive regex; prints surrounding text")
+    filing.add_argument("--chars", type=int, default=1500)
+    filing.add_argument("--max-matches", type=int, default=3)
+    filing.set_defaults(func=cmd_filing_text)
+
+    funda = sub.add_parser("fundamentals")
+    funda.add_argument("ticker")
+    funda.set_defaults(func=cmd_fundamentals)
 
     args = parser.parse_args()
     args.func(args)
