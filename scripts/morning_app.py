@@ -173,6 +173,17 @@ def find_claude() -> str | None:
     return None
 
 
+def sync_from_github(stage: str) -> bool:
+    """Rebase local commits onto GitHub so this copy never gets stuck behind it."""
+    pulled = git("pull", "--rebase", "--autostash")
+    if pulled.returncode != 0:
+        git("rebase", "--abort")
+        log(f"git pull ({stage}) failed; keeping the local copy: {pulled.stderr.strip()[:300]}")
+        return False
+    log(f"git pull ({stage}): {(pulled.stdout or pulled.stderr).strip()[:200]}")
+    return True
+
+
 def run_tool(*args: str, timeout: int = 600) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, str(TOOL), *args],
@@ -350,9 +361,8 @@ def cmd_run(args: argparse.Namespace) -> None:
         since = previous_email_date(state, today)
         log(f"run: starting for {today} (news since {since}, markets: {status})")
         if cfg.get("git_sync"):
-            pulled = git("pull", "--ff-only")
-            log(f"git pull: {(pulled.stdout or pulled.stderr).strip()[:200]}")
-        for step in (("update-log",), ("track-news", "--since", since)):
+            sync_from_github("start")
+        for step in (("check-logs",), ("update-log",), ("track-news", "--since", since)):
             done = run_tool(*step)
             log(f"{step[0]}: exit {done.returncode}; {done.stdout.strip().splitlines()[-1:]}")
         notes = []
@@ -365,6 +375,8 @@ def cmd_run(args: argparse.Namespace) -> None:
             ok, summary = research(cfg, today, since)
         if not ok:
             notes.append(f"today's research step didn't complete: {summary}")
+        checked = run_tool("check-logs")
+        log(f"check-logs: {' | '.join(checked.stdout.strip().splitlines())}")
         subject, html_body, text_body = build_email(today, since, "; ".join(notes) or None)
         if args.dry_run:
             preview = APP_DIR / "last_email_preview.html"
@@ -378,7 +390,7 @@ def cmd_run(args: argparse.Namespace) -> None:
         git("add", "reports")
         committed = git("commit", "-m", f"Morning run {today}")
         log(f"git commit: {(committed.stdout or committed.stderr).strip()[:120]}")
-        if cfg.get("git_sync"):
+        if cfg.get("git_sync") and sync_from_github("before push"):
             pushed = git("push")
             log(f"git push: exit {pushed.returncode} {pushed.stderr.strip()[:200]}")
     except Exception as exc:  # noqa: BLE001 - always try to tell the owner something failed

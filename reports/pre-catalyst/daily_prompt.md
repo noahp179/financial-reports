@@ -49,6 +49,7 @@ You cannot run other shell commands, send email or use git. The app does those a
 6. **Finish.** End with a 3-line summary: picks, call changes, and anything you couldn't check.
 
 **Rules:**
+- When you edit a CSV file, wrap any field that contains a comma in double quotes. Prefer the tool commands (`rate --ticker`) over hand-editing. Run `{py} scripts/precatalyst.py check-logs` after editing.
 - Public information only.
 - Plain words, no jargon, concise.
 - Never recommend position sizes.

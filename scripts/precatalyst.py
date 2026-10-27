@@ -14,6 +14,7 @@ Commands:
   filing-text --url URL [--pattern REGEX] [--chars N]
                                plain text of an SEC filing, or the passages matching a pattern
   fundamentals TICKER          trailing-12-month revenue, profit, cash flow, cash, debt, shares
+  check-logs                   repair CSV rows whose unquoted commas spilled into extra columns
 
 Market data comes from the public Yahoo Finance chart endpoint. Prices may be delayed.
 """
@@ -28,6 +29,7 @@ import json
 import math
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -241,6 +243,11 @@ def cmd_update_log(args: argparse.Namespace) -> None:
     for col in [f"excess_{n}d" for n in RETURN_DAYS]:
         if col not in fields:
             fields.append(col)
+    for rec in records:
+        # An unquoted comma in a hand-written note spills into extra columns; fold them back.
+        extra = rec.pop(None, None)
+        if extra:
+            rec[fields[-1]] = ",".join([rec.get(fields[-1]) or "", *extra])
     cache: dict[str, list[tuple[dt.date, float, int]]] = {}
     for rec in records:
         start = dt.date.fromisoformat(rec["first_seen_date"])
@@ -256,11 +263,44 @@ def cmd_update_log(args: argparse.Namespace) -> None:
                 rec[f"ret_{n}d"] = f"{ret:.4f}"
                 if bret is not None:
                     rec[f"excess_{n}d"] = f"{ret - bret:.4f}"
-    with path.open("w", newline="") as fh:
+    # Write to a temporary file first so a failure can never leave a truncated log behind.
+    tmp = path.with_suffix(".csv.tmp")
+    with tmp.open("w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fields)
         writer.writeheader()
         writer.writerows(records)
+    tmp.replace(path)
     print(f"updated {len(records)} rows in {path}")
+
+
+def cmd_check_logs(_: argparse.Namespace) -> None:
+    """Repair hand-edited CSV rows whose unquoted commas spilled into extra columns."""
+    for path in (DEFAULT_LOG, NEWS_LOG, ESTIMATES_LOG, CALENDAR):
+        if not path.exists():
+            continue
+        with path.open(newline="") as fh:
+            rows = list(csv.reader(fh))
+        if not rows:
+            continue
+        width = len(rows[0])
+        fixed, changed = [rows[0]], 0
+        for row in rows[1:]:
+            if not row:
+                changed += 1
+                continue
+            if len(row) > width:
+                row = row[: width - 1] + [",".join(row[width - 1 :])]
+                changed += 1
+            elif len(row) < width:
+                row = row + [""] * (width - len(row))
+                changed += 1
+            fixed.append(row)
+        if changed:
+            tmp = path.with_suffix(".csv.tmp")
+            with tmp.open("w", newline="") as fh:
+                csv.writer(fh).writerows(fixed)
+            tmp.replace(path)
+        print(f"{path.name}: {len(fixed) - 1} rows, {changed} repaired")
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -675,10 +715,15 @@ def cmd_edgar_search(args: argparse.Namespace) -> None:
         "enddt": args.until or dt.date.today().isoformat(),
     }
     if args.forms:
-        params["forms"] = args.forms
+        params["forms"] = args.forms.replace(" ", "")
     if args.cik:
         params["ciks"] = f"{int(args.cik):010d}"
-    data = get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)
+    try:
+        data = get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)
+    except urllib.error.HTTPError as exc:
+        sys.exit(f"SEC search failed: HTTP {exc.code} {exc.reason}; retry in a minute")
+    except (urllib.error.URLError, TimeoutError) as exc:
+        sys.exit(f"SEC search failed: {exc}; check the internet connection and retry")
     hits = data["hits"]["hits"]
     print(f"{data['hits']['total']['value']} matches (showing {len(hits)})")
     seen = set()
@@ -836,6 +881,8 @@ def main() -> None:
     filing.add_argument("--chars", type=int, default=1500)
     filing.add_argument("--max-matches", type=int, default=3)
     filing.set_defaults(func=cmd_filing_text)
+
+    sub.add_parser("check-logs").set_defaults(func=cmd_check_logs)
 
     funda = sub.add_parser("fundamentals")
     funda.add_argument("ticker")
