@@ -17,3 +17,9 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-10-26,BVS,14.72,Hold,0.0207,0.2908,0.35,-0.2188,0.35,New: sale review since 2026-08-05 after unsolicited bid and other interest (8-K); Evercore hired; no timetable; trades near 52w high
 2026-10-27,PYPD,5.6,Buy,0.0830,0.2500,0.78,-0.5089,0.22,"Pre-market 5.60 (+5.9%) after Oppenheimer starts at Outperform, US$10 target (10/27); FDA decision Nov 28 unchanged"
 2026-10-27,VNDA,4.31,Hold,0.0684,0.3341,0.45,-0.2459,0.35,"Phase III 3601 (NEREUS, GLP-1 vomiting) met its main goal p=0.006 (10/27); pre-market 4.31 (+9.4%); Q3 Oct 28; Quimilza FDA Dec 12"
+2026-10-28,PYPD,5.86,Hold,0.0350,0.1945,0.78,-0.5307,0.22,"Closed 5.77 (+9%) 10/27 and 5.86 pre-market 10/28, above the Buy limit; investor day today; FDA Nov 28"
+2026-10-28,VNDA,3.99,Buy,0.1372,0.4411,0.40,-0.1855,0.35,Gave back the trial jump: closed 3.99 on 10/27 (+1%); Q3 results today 10/28; Quimilza FDA decision Dec 12
+2026-10-28,ACB,4.15,Hold,-0.0157,0.1807,0.20,-0.2771,0.30,Curaleaf says it remains open to engaging (10/27); bid now worth about 4.41 (0.4013 x CURLF 8.49 + 1.00); ACB closed 4.15 (+6%)
+2026-10-28,CAPR,6.1,Sell,-0.0779,1.6230,0.20,-0.5492,0.70,Up 6% to 6.10 on 10/27 with no news; FDA decision Nov 22; odds unchanged
+2026-10-28,SVRA,4.86,Hold,-0.0029,0.1111,0.78,-0.5062,0.17,"Up 7.5% to 4.86 on 10/27, above the 4.47 buy level; FDA decision Nov 22"
+2026-10-28,RRC,56.38,Hold,-0.0291,-0.0149,0.92,-0.1926,0.08,Q3 beat; RRC 56.38 now trades above the offer value (0.987 x EQT 56.27 = 55.54)

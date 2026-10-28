@@ -14,3 +14,5 @@ date,ticker,event,status,source
 2026-12-04,ACB,Curaleaf takeover bid expires,confirmed,https://www.sec.gov/Archives/edgar/data/0001683541/000127956926000955/ex991.htm
 2026-12-12,VNDA,FDA decision (Quimilza),confirmed,https://www.sec.gov/Archives/edgar/data/1347178/000162828026053308/
 2026-11-02,BVS,Q3 earnings,confirmed,https://finance.yahoo.com/quote/BVS/news
+2026-12-31,ZURA,Phase 2 skin-disease (HS) results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1855644/000185564426000012/corporatedeck_zurabiox27.htm
+2026-12-31,HELP,Phase 3 depression results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1833141/000106299326005562/exhibit99-1.htm

@@ -35,6 +35,7 @@ import json
 import math
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -724,12 +725,20 @@ def cmd_edgar_search(args: argparse.Namespace) -> None:
         params["forms"] = ",".join(f.strip() for f in args.forms.split(","))
     if args.cik:
         params["ciks"] = f"{int(args.cik):010d}"
-    try:
-        data = get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)
-    except urllib.error.HTTPError as exc:
-        sys.exit(f"SEC search failed: HTTP {exc.code} {exc.reason}; retry in a minute")
-    except (urllib.error.URLError, TimeoutError) as exc:
-        sys.exit(f"SEC search failed: {exc}; check the internet connection and retry")
+    data: dict = {}
+    for attempt in range(2):
+        try:
+            data = get_json(EFTS_URL + urllib.parse.urlencode(params), SEC_HEADERS)
+        except urllib.error.HTTPError as exc:
+            data = {"error": f"HTTP {exc.code} {exc.reason}"}
+        except (urllib.error.URLError, TimeoutError) as exc:
+            data = {"error": str(exc)}
+        if "hits" in data:
+            break
+        if attempt == 0:
+            time.sleep(5)
+    if "hits" not in data:
+        sys.exit(f"SEC search failed ({str(data)[:200]}); retry in a minute")
     hits = data["hits"]["hits"]
     print(f"{data['hits']['total']['value']} matches (showing {len(hits)})")
     seen = set()
