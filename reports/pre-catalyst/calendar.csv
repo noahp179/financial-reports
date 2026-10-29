@@ -1,11 +1,11 @@
 date,ticker,event,status,source
 2026-10-28,PYPD,Investor day,confirmed,https://finance.yahoo.com/healthcare/articles/polypid-host-virtual-investor-day-123000098.html
 2026-10-28,VNDA,Q3 earnings,confirmed,https://finance.yahoo.com/quote/VNDA/news
-2026-10-30,CART,"Possible DoorDash deal announcement (WSJ: ""as soon as this week"")",reported,https://finance.yahoo.com/m/1ca5e97f-2ae1-37eb-95f9-8a13970dcaf1/doordash-is-in-advanced-talks.html
+2026-10-29,CART,DoorDash deal announced: US$65.00 a share (cash or stock election),confirmed,https://www.sec.gov/Archives/edgar/data/1579091/000179278926000065/dashform425combined.htm
 2026-10-30,INO,FDA decision (INO-3107),confirmed,https://www.sec.gov/Archives/edgar/data/1055726/000105572626000023/ino-20260630.htm
 2026-11-02,MAT,New CEO Roger Lynch starts (by this date),reported,https://www.retailgazette.co.uk/blog/2026/10/mattel-boss-ynon-kreiz-exits-to-lead-paramount-warner-bros-giant/
 2026-11-05,MAT,Q3 earnings (after close),confirmed,https://finviz.com/news/403330/mattel-announces-third-quarter-2026-financial-results-and-conference-call-date
-2026-11-05,CART,Q3 earnings (after close),confirmed,https://www.sec.gov/Archives/edgar/data/0001579091/000157909126000040/q22026pressrelease.htm
+2026-10-29,CART,Q3 results (released early with the deal),confirmed,https://www.sec.gov/Archives/edgar/data/1579091/000119312526437014/d24470d8k.htm
 2026-11-12,INVE,Q3 report (explains cash drop),estimated,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111181/ea030911901ex99-1.htm
 2026-11-19,INVE,Buyback offer closes 5pm ET,confirmed,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111186/ea0308959-01.htm
 2026-11-22,CAPR,FDA decision,confirmed,https://www.sec.gov/Archives/edgar/data/1133869/000110465926100071/
@@ -16,3 +16,4 @@ date,ticker,event,status,source
 2026-11-02,BVS,Q3 earnings,confirmed,https://finance.yahoo.com/quote/BVS/news
 2026-12-31,ZURA,Phase 2 skin-disease (HS) results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1855644/000185564426000012/corporatedeck_zurabiox27.htm
 2026-12-31,HELP,Phase 3 depression results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1833141/000106299326005562/exhibit99-1.htm
+2027-12-31,CART,Deal closing (companies expect end of 2027 to first half of 2028),estimated,https://www.sec.gov/Archives/edgar/data/1579091/000179278926000065/dashform425combined.htm

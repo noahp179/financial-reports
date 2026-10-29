@@ -23,3 +23,7 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-10-28,CAPR,6.1,Sell,-0.0779,1.6230,0.20,-0.5492,0.70,Up 6% to 6.10 on 10/27 with no news; FDA decision Nov 22; odds unchanged
 2026-10-28,SVRA,4.86,Hold,-0.0029,0.1111,0.78,-0.5062,0.17,"Up 7.5% to 4.86 on 10/27, above the 4.47 buy level; FDA decision Nov 22"
 2026-10-28,RRC,56.38,Hold,-0.0291,-0.0149,0.92,-0.1926,0.08,Q3 beat; RRC 56.38 now trades above the offer value (0.987 x EQT 56.27 = 55.54)
+2026-10-29,VNDA,4.35,Hold,0.0690,0.3218,0.42,-0.2529,0.30,"Q3 10/28: revenue +24% y/y to 69.8M, costs -18% q/q, cash 140.5M; pre-market 4.35 (+8.7%), above the Buy limit; FDA Dec 12"
+2026-10-29,INO,0.96,Strong Sell,-0.1754,0.6146,0.30,-0.5521,0.62,FDA decision tomorrow 10/30; pre-market 0.96; FDA had flagged accelerated-approval eligibility; no new news
+2026-10-29,CART,58.05,Hold,0.0241,0.2059,0.03,-0.2076,0.03,"DoorDash definitive deal 10/29: 65.00/share, cash or stock election (stock capped at 25%); close expected end-2027 to H1 2028; HSR plus Canada/Israel approvals; pre-market 58.05"
+2026-10-29,BKU,43.11,Hold,0.0392,0.2526,0.15,-0.1417,0.10,"New: HoldCo Asset Management 13D at 5.0% (event 10/21, filed 10/28); in talks with management and board on shareholder value; campaign public since early 2026; pre-market 43.11"

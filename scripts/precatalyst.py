@@ -509,7 +509,8 @@ def status_note(status: str) -> str:
 
 def short_date(iso: str) -> str:
     day = dt.date.fromisoformat(iso[:10])
-    return f"{day:%b} {day.day}"
+    text = f"{day:%b} {day.day}"
+    return text if day.year == dt.date.today().year else f"{text}, {day.year}"
 
 
 def tracked_updates(since: dt.date) -> list[dict[str, str]]:
@@ -550,7 +551,10 @@ def tracked_updates(since: dt.date) -> list[dict[str, str]]:
         now = cache.get(symbol)
         history = sorted(estimates.get(ticker, []), key=lambda r: r["date"])
         latest = history[-1] if history else None
-        previous = history[-2] if len(history) > 1 else None
+        # A change is today's call against the last one shown before today, so a
+        # change made in an earlier run is not reported again.
+        earlier = [r for r in history if r["date"] < today.isoformat()]
+        previous = earlier[-1] if earlier and latest is not earlier[-1] else None
         if latest is None:
             call = rec.get("rating", "")
         elif previous is None or previous["rating"] == latest["rating"]:
