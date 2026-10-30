@@ -15,6 +15,9 @@ date,ticker,event,status,source
 2026-12-12,VNDA,FDA decision (Quimilza),confirmed,https://www.sec.gov/Archives/edgar/data/1347178/000162828026053308/
 2026-11-02,BVS,Q3 earnings,confirmed,https://finance.yahoo.com/quote/BVS/news
 2026-12-31,ZURA,Phase 2 skin-disease (HS) results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1855644/000185564426000012/corporatedeck_zurabiox27.htm
-2026-12-31,HELP,Phase 3 depression results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1833141/000106299326005562/exhibit99-1.htm
 2027-12-31,CART,Deal closing (companies expect end of 2027 to first half of 2028),estimated,https://www.sec.gov/Archives/edgar/data/1579091/000179278926000065/dashform425combined.htm
 2026-11-11,PYPD,Q3 results,confirmed,https://finance.yahoo.com/healthcare/articles/polypid-report-third-quarter-2026-120000488.html
+2026-11-12,ACB,Q2 results (before the open; call 8:00 ET),confirmed,https://finance.yahoo.com/markets/stocks/articles/aurora-cannabis-host-second-quarter-110000789.html
+2026-12-31,HELP,Phase 3 APPROACH depression results (company guided Q4 2026; date not set),estimated,https://finance.yahoo.com/healthcare/articles/helus-pharma-highlights-clinical-program-201000421.html
+2026-12-31,RM,SSR Mining deal expected to close (company: December 2026),estimated,https://www.bnnbloomberg.ca/markets/gold/2026/10/13/ssr-mining-signs-deal-to-buy-roxmore-resources-and-its-converse-gold-project/
+2027-03-31,HLF,Umios deal expected to close (company: Q1 2027),estimated,https://finance.yahoo.com/news/high-liner-foods-enters-agreement-111100840.html

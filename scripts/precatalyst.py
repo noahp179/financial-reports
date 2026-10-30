@@ -85,8 +85,15 @@ Z80 = 1.2816  # two-sided 80% interval under a lognormal approximation
 
 # Canadian-dollar listings: Yahoo exchange codes, symbol suffixes and the exchange names used in
 # candidate_log.csv. Wealthsimple trades all four exchanges in CAD.
-CAD_EXCHANGES = {"TOR": "TSX", "VAN": "TSX-V", "CNQ": "CSE", "NEO": "Cboe Canada"}
+CAD_EXCHANGES = {
+    "TOR": "TSX",
+    "VAN": "TSX-V",
+    "CNQ": "CSE",
+    "NEO": "Cboe Canada",
+    "NEOE": "Cboe Canada",
+}
 CAD_SUFFIXES = (".TO", ".V", ".CN", ".NE")
+SUFFIX_EXCHANGE = {".TO": "TSX", ".V": "TSX-V", ".CN": "CSE", ".NE": "Cboe Canada"}
 CANADIAN_EXCHANGES = {"TSX", "TSX-V", "TSXV", "CSE", "CBOE CANADA", "NEO"}
 
 RATING_BANDS = (
@@ -1425,8 +1432,7 @@ def cmd_ca_news(args: argparse.Namespace) -> None:
 def cad_listings(ticker: str, name: str = "") -> tuple[dict[str, str], ...]:
     """Ways to own a stock in Canadian dollars: its shares on a Canadian exchange, or a CDR."""
     if is_canadian(ticker):
-        suffix = "." + ticker.rsplit(".", 1)[1].upper()
-        exchange = dict(zip(CAD_SUFFIXES, CAD_EXCHANGES.values(), strict=True))[suffix]
+        exchange = SUFFIX_EXCHANGE["." + ticker.rsplit(".", 1)[1].upper()]
         return ({"symbol": ticker, "exchange": exchange, "kind": "shares"},)
     name = name or company_name(ticker)
     key = normalize_company(name)
@@ -1443,29 +1449,26 @@ def cad_listings(ticker: str, name: str = "") -> tuple[dict[str, str], ...]:
     lines = []
     for quote in quotes.values():
         label = quote.get("longname") or quote.get("shortname") or ""
+        # Yahoo's long name is the company; the short name marks CDRs ("APPLE CDR (CAD HEDGED)").
+        short = (quote.get("shortname") or "").upper()
         other = normalize_company(label)
         if (
             quote.get("exchange") not in CAD_EXCHANGES
             or quote.get("quoteType") != "EQUITY"
-            or FUND_NAME.search(label)
+            or FUND_NAME.search(label + " " + short)
             or not key
             or not (other == key or other.startswith(key + " ") or key.startswith(other + " "))
         ):
             continue
-        if quote["symbol"] in hedged or "hedged" in other.split():
+        if quote["symbol"] in hedged or ("CDR" in short.split() and "HEDGED" in short):
             kind = "CDR, currency-hedged"
-        elif "cdr" in other.split():
+        elif "CDR" in short.split():
             kind = "CDR"
         else:
             kind = "shares"
         lines.append(
             {"symbol": quote["symbol"], "exchange": CAD_EXCHANGES[quote["exchange"]], "kind": kind}
         )
-    # Cboe Canada also trades TSX-listed shares, but a US company found only there is a CDR.
-    if not any(x["kind"] == "shares" and x["exchange"] != "Cboe Canada" for x in lines):
-        for line in lines:
-            if line["kind"] == "shares":
-                line["kind"] = "CDR"
     lines.sort(key=lambda x: ("shares", "CDR, currency-hedged", "CDR").index(x["kind"]))
     return tuple(lines)
 
