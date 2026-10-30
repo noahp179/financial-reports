@@ -21,6 +21,17 @@ Commands:
                                listed companies whose Phase 2/3 trials finish soon on
                                ClinicalTrials.gov (likely data readouts), smallest first
   trial-info NCT_ID            design, size, primary goal and status of one trial
+  ca-movers [--min-move F] [--min-value C$] [--min-price C$] [--top N]
+                               biggest TSX and TSX-V moves of the latest session, with volume
+                               against normal and the latest headline
+  ca-news [--since DATE] [--lists deals,public,mining] [--all]
+                               Canadian press releases (newswire.ca) tagged with a TSX, TSX-V or
+                               CSE ticker, sorted by catalyst type
+  cad-listing TICKER...        whether a US-listed stock can be bought in Canadian dollars
+                               (TSX/TSX-V/CSE/Cboe Canada shares, or a CAD-hedged CDR)
+
+The owner buys only in Canadian dollars, so trial-results and upcoming-trials keep only companies
+with a Canadian listing unless --us-too is given.
 
 Market data comes from the public Yahoo Finance chart endpoint. Prices may be delayed.
 """
@@ -30,6 +41,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import functools
 import html
 import json
 import math
@@ -39,6 +51,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{t}?interval=1d&range={r}"
@@ -69,6 +82,12 @@ SKIP_FORMS = {"3", "4", "5", "3/A", "4/A", "144", "S-8", "FWP", "SC 13G", "SC 13
 SKIP_FORM_PREFIXES = ("424B", "SCHEDULE 13G")
 RETURN_DAYS = (1, 5, 20, 60)
 Z80 = 1.2816  # two-sided 80% interval under a lognormal approximation
+
+# Canadian-dollar listings: Yahoo exchange codes, symbol suffixes and the exchange names used in
+# candidate_log.csv. Wealthsimple trades all four exchanges in CAD.
+CAD_EXCHANGES = {"TOR": "TSX", "VAN": "TSX-V", "CNQ": "CSE", "NEO": "Cboe Canada"}
+CAD_SUFFIXES = (".TO", ".V", ".CN", ".NE")
+CANADIAN_EXCHANGES = {"TSX", "TSX-V", "TSXV", "CSE", "CBOE CANADA", "NEO"}
 
 RATING_BANDS = (
     ("Strong Buy", 0.20),
@@ -138,7 +157,8 @@ def cmd_snapshot(args: argparse.Namespace) -> None:
             f"{ticker} {meta.get('fullExchangeName', '?')} {meta.get('currency', '?')}",
             f"price={price:.3f} @ {stamp}",
             f"prev_close={prev:.3f} chg={(price / prev - 1) * 100:+.1f}%",
-            f"vol={today_vol:,} avg20={avg20:,.0f} rvol={today_vol / avg20:.2f}",
+            f"vol={today_vol:,} avg20={avg20:,.0f} "
+            f"rvol={today_vol / avg20 if avg20 else float('nan'):.2f}",
             "(rvol is partial-day if intraday)",
             f"1m={ret_1m:+.1f}%",
             f"RV20={realized_vol(closes, 20):.0%} RV60={realized_vol(closes, 60):.0%}",
@@ -228,7 +248,11 @@ def cmd_rate(args: argparse.Namespace) -> None:
 
 
 def benchmark_for(exchange: str) -> str:
-    return "XIU.TO" if exchange.upper().startswith("TSX") else "SPY"
+    return "XIU.TO" if exchange.upper() in CANADIAN_EXCHANGES else "SPY"
+
+
+def is_canadian(symbol: str) -> bool:
+    return symbol.upper().endswith(CAD_SUFFIXES)
 
 
 def trading_day_return(
@@ -345,6 +369,16 @@ def default_since() -> dt.date:
     return dt.date.today() - dt.timedelta(days=3)
 
 
+@functools.cache
+def company_name(symbol: str) -> str:
+    """Yahoo's company name for a symbol, or the symbol itself when the lookup fails."""
+    try:
+        meta = fetch_daily(symbol, "5d")[0]
+    except Exception:  # noqa: BLE001 - the symbol still works as a search term
+        return symbol
+    return meta.get("longName") or meta.get("shortName") or symbol
+
+
 def cmd_track_news(args: argparse.Namespace) -> None:
     since = dt.date.fromisoformat(args.since) if args.since else default_since()
     known = {row["url"] for row in read_csv(NEWS_LOG)}
@@ -357,15 +391,22 @@ def cmd_track_news(args: argparse.Namespace) -> None:
     new_rows: list[dict[str, str]] = []
     for ticker, rec in active_names().items():
         symbol = rec.get("yahoo_symbol") or ticker
+        # A Canadian line has SEC filings only when the company is also US-listed and its US
+        # ticker is recorded; a bare root like HLF would otherwise pick up another company.
+        sec_ticker = rec.get("sec_ticker") or ("" if is_canadian(symbol) else ticker)
         try:
-            news = get_json(NEWS_URL.format(q=urllib.parse.quote(symbol))).get("news", [])
+            # Yahoo returns no news for ".TO"-style symbols, so search Canadian names by company.
+            query = company_name(symbol) if is_canadian(symbol) else symbol
+            news = get_json(NEWS_URL.format(q=urllib.parse.quote(query))).get("news", [])
         except Exception as exc:  # noqa: BLE001 - report and continue with filings
             print(f"{ticker}: news unavailable ({exc})")
             news = []
         for item in news:
             published = dt.datetime.fromtimestamp(item["providerPublishTime"], dt.UTC)
             related = item.get("relatedTickers")
-            if published.date() < since or (related and symbol not in related):
+            if published.date() < since or (
+                related and symbol not in related and (not sec_ticker or sec_ticker not in related)
+            ):
                 continue
             if not is_relevant(item["title"], ticker, rec):
                 continue
@@ -379,7 +420,7 @@ def cmd_track_news(args: argparse.Namespace) -> None:
                     "url": item["link"],
                 }
             )
-        cik = ciks.get(ticker)
+        cik = ciks.get(sec_ticker) if sec_ticker else None
         if not cik:
             continue
         try:
@@ -594,7 +635,12 @@ def calendar_html(weeks: int) -> str:
     end = start + dt.timedelta(weeks=weeks)
     by_day: dict[str, list[dict[str, str]]] = {}
     later = []
+    # Only tracked names; the symbol keeps a TSX listing from linking to a US namesake.
+    symbols = {t: rec.get("yahoo_symbol") or t for t, rec in active_names().items()}
     for row in sorted(read_csv(CALENDAR), key=lambda r: r["date"]):
+        if row["ticker"] not in symbols:
+            continue
+        row["symbol"] = symbols[row["ticker"]]
         day = dt.date.fromisoformat(row["date"])
         if start <= day < end:
             by_day.setdefault(row["date"], []).append(row)
@@ -615,7 +661,7 @@ def calendar_html(weeks: int) -> str:
             day = start + dt.timedelta(weeks=week, days=offset)
             shade = ";background:#fff8dc" if day == today else ""
             items = "".join(
-                f'<div><a href="https://finance.yahoo.com/quote/{html.escape(e["ticker"])}">'
+                f'<div><a href="https://finance.yahoo.com/quote/{html.escape(e["symbol"])}">'
                 f'<b>{html.escape(e["ticker"])}</b></a> {html.escape(e["event"])}'
                 f"{status_note(e['status'])}</div>"
                 for e in by_day.get(day.isoformat(), [])
@@ -929,10 +975,11 @@ def last_move(symbol: str) -> str:
     offset = dt.timedelta(seconds=meta.get("gmtoffset", 0))
     day = (dt.datetime.fromtimestamp(meta["regularMarketTime"], dt.UTC) + offset).date()
     before = [r[1] for r in rows if r[0] < day]
-    price = meta["regularMarketPrice"]
+    price = money(meta["regularMarketPrice"], meta.get("currency", "USD"))
     if not before:
-        return f"${price:,.2f}"
-    return f"${price:,.2f} ({(price / before[-1] - 1) * 100:+.0f}% on {day:%b} {day.day})"
+        return price
+    change = meta["regularMarketPrice"] / before[-1] - 1
+    return f"{price} ({change * 100:+.0f}% on {day:%b} {day.day})"
 
 
 def cmd_trial_results(args: argparse.Namespace) -> None:
@@ -967,12 +1014,20 @@ def cmd_trial_results(args: argparse.Namespace) -> None:
                 if tone == "negative":
                     entry["tone"] = "negative"
     rows = sorted(found.values(), key=lambda e: (e["date"], e["company"]), reverse=True)
-    print(f"{len(rows)} filings mentioning trial results since {since}")
+    for entry in rows:
+        entry["symbol"] = entry["ticker"]
+        if not args.us_too and entry["ticker"]:
+            name = re.sub(r"\s*\(.*", "", entry["company"])
+            entry["symbol"] = cad_symbol(entry["ticker"], name, shares_only=True)
+    if not args.us_too:
+        rows = [e for e in rows if e["symbol"]]
+    scope = "" if args.us_too else " at companies with a Canadian-dollar listing"
+    print(f"{len(rows)} filings mentioning trial results since {since}{scope}")
     print("tone: positive / negative = a results phrase was found; check = read the filing")
     for entry in rows:
-        move = last_move(entry["ticker"]) if entry["ticker"] and args.prices else ""
+        move = last_move(entry["symbol"]) if entry["symbol"] and args.prices else ""
         print(
-            f"{entry['date']} {entry['tone']:8s} {entry['ticker'] or '-':6s} "
+            f"{entry['date']} {entry['tone']:8s} {entry['symbol'] or '-':9s} "
             f"{entry['company'][:45]:45s} {move:28s} {entry['url']}"
         )
 
@@ -1036,19 +1091,39 @@ def cmd_upcoming_trials(args: argparse.Namespace) -> None:
         if not token or len(studies) >= 5000:
             break
     index = sec_company_index()
+    # TSX and TSX-V companies that don't file with the SEC are matched by name to their listing.
+    ca_index: dict[str, tuple[str, int]] = {}
+    if not args.us_too:
+        try:
+            for x in tsx_directory():
+                if not (x["cdr"] or NON_SHARE_SUFFIX.search(x["symbol"])):
+                    ca_index.setdefault(normalize_company(x["name"]), (x["yahoo"], 0))
+        except Exception as exc:  # noqa: BLE001 - SEC filers are still checked
+            print(f"TSX directory unavailable ({exc}); only SEC filers checked")
     caps: dict[str, float | None] = {}
+    cad: dict[str, str] = {}
     rows = []
     for study in studies:
         proto = study["protocolSection"]
         sponsor = proto["sponsorCollaboratorsModule"]["leadSponsor"]["name"]
         match = match_sponsor(sponsor, index)
-        if not match:
-            continue
-        ticker, cik = match
-        if ticker not in caps:
-            caps[ticker] = market_cap(ticker, cik)
-        cap = caps[ticker]
-        if cap is not None and (cap > args.max_mcap * 1e9 or cap < 20e6):
+        ca_match = None if match else match_sponsor(sponsor, ca_index)
+        if match:
+            ticker, cik = match
+            if ticker not in caps:
+                caps[ticker] = market_cap(ticker, cik)
+            cap = caps[ticker]
+            if cap is not None and (cap > args.max_mcap * 1e9 or cap < 20e6):
+                continue
+            if not args.us_too:
+                if ticker not in cad:
+                    cad[ticker] = cad_symbol(ticker, sponsor, shares_only=True)
+                if not cad[ticker]:
+                    continue
+                ticker = cad[ticker]
+        elif ca_match:
+            ticker, cap = ca_match[0], None
+        else:
             continue
         done = proto["statusModule"]["primaryCompletionDateStruct"]
         rows.append(
@@ -1065,14 +1140,15 @@ def cmd_upcoming_trials(args: argparse.Namespace) -> None:
             )
         )
     rows.sort(key=lambda r: (r[0] == 0, r[0], r[3]))
+    scope = "listed companies" if args.us_too else "companies with a Canadian-dollar listing"
     print(
-        f"{len(rows)} Phase 2/3 trials at listed companies under ${args.max_mcap:g}B, finishing "
+        f"{len(rows)} Phase 2/3 trials at {scope} under US${args.max_mcap:g}B, finishing "
         f"{start}..{end}. Topline data usually follows 1–3 months after the finish date."
     )
     for cap, ticker, sponsor, date, kind, phase, enrolled, nct, title in rows:
-        cap_text = f"${cap / 1e9:.2f}B" if cap else "cap n/a"
+        cap_text = f"US${cap / 1e9:.2f}B" if cap else "cap n/a"
         print(
-            f"{ticker:6s} {cap_text:9s} {phase:6s} done {date} ({kind}) n={enrolled} {nct} "
+            f"{ticker:9s} {cap_text:10s} {phase:6s} done {date} ({kind}) n={enrolled} {nct} "
             f"{sponsor[:28]} | {title[:70]}"
         )
 
@@ -1101,6 +1177,316 @@ def cmd_trial_info(args: argparse.Namespace) -> None:
         print(f"  arm: {arm.get('label')} [{arm.get('type')}]")
     print(f"  conditions: {proto.get('conditionsModule', {}).get('conditions')}")
     print(f"  link: https://clinicaltrials.gov/study/{ident['nctId']}")
+
+
+TSX_DIRECTORY_URL = "https://www.tsx.com/json/company-directory/search/{board}/%5E*"
+SPARK_URL = "https://query1.finance.yahoo.com/v7/finance/spark?symbols={s}&range=5d&interval=1d"
+QUOTE_SEARCH_URL = (
+    "https://query1.finance.yahoo.com/v1/finance/search?q={q}&quotesCount=12&newsCount=0"
+)
+NEWSWIRE_URL = "https://www.newswire.ca"
+NEWSWIRE_LISTS = {
+    "deals": "/news-releases/financial-services-latest-news/"
+    "acquisitions-mergers-and-takeovers-list/",
+    "public": "/news-releases/all-public-company-news/",
+    "mining": "/news-releases/energy-latest-news/mining-list/",
+}
+BOARD_SUFFIX = {"tsx": ".TO", "tsxv": ".V"}
+# Listings that are not plain CAD shares: US-dollar lines, debentures, warrants, preferreds,
+# rights and notes. Trust units (.UN) are kept.
+NON_SHARE_SUFFIX = re.compile(r"\.(U|DB|WT|PR|RT|NT|NO|SB|W)(\.|$)")
+FUND_NAME = re.compile(
+    r"\b(ETFs?|Fund|Index|Portfolio|Covered Call|Yield Shares|Split|Bitcoin|Ether|Solana|XRP)\b",
+    re.I,
+)
+CA_TAG = re.compile(
+    r"\((TSX[- ]?V(?:enture(?: Exchange)?)?|TSX|CSE|NEO|Cboe Canada)\s*:\s*([A-Z][A-Z0-9.]{0,9})",
+    re.I,
+)
+CA_NEWS_KINDS = (
+    (
+        "takeover",
+        r"arrangement agreement|plan of arrangement|take-?over bid|to be acquired|"
+        r"to acquire all|definitive agreement|merger|unsolicited|going.private",
+    ),
+    ("asset sale", r"\bto sell\b|\bsale of\b|divest"),
+    ("review", r"strategic review|strategic alternatives|special committee|sale process"),
+    (
+        "big holder",
+        r"early warning|acquires (?:units|shares|common shares)|"
+        r"(?:acquisition|disposition) of securities",
+    ),
+    ("buyback", r"substantial issuer bid|normal course issuer bid|dutch auction"),
+    ("drug/medical", r"\bFDA\b|Health Canada|phase [123]|topline|primary endpoint"),
+    (
+        "mining result",
+        r"\bdrill|g/t\b|intercept|resource estimate|feasibility|preliminary economic|"
+        r"\bPEA\b|permit",
+    ),
+    ("financing", r"private placement|bought deal|\boffering\b|financing"),
+)
+
+
+@functools.lru_cache(maxsize=1)
+def tsx_directory() -> tuple[dict, ...]:
+    """Every TSX and TSX-V listing: symbol, Yahoo symbol, company, exchange, and CDR flag."""
+    listings = []
+    for board, label in (("tsx", "TSX"), ("tsxv", "TSX-V")):
+        for company in get_json(TSX_DIRECTORY_URL.format(board=board))["results"]:
+            for inst in company.get("instruments") or [{"symbol": company["symbol"]}]:
+                listings.append(
+                    {
+                        "symbol": inst["symbol"],
+                        "yahoo": inst["symbol"].replace(".", "-") + BOARD_SUFFIX[board],
+                        "name": company["name"],
+                        "exchange": label,
+                        "cdr": "CDR" in company["name"],
+                    }
+                )
+    return tuple(listings)
+
+
+def spark(symbols: list[str]) -> dict[str, tuple[dict, list[float]]]:
+    """Latest quote and recent daily closes for up to 20 Yahoo symbols in one request."""
+    url = SPARK_URL.format(s=urllib.parse.quote(",".join(symbols), safe=",.-"))
+    for attempt in range(2):
+        try:
+            results = get_json(url)["spark"]["result"]
+            break
+        except Exception:  # noqa: BLE001 - one retry, then skip this batch
+            if attempt:
+                return {}
+            time.sleep(2)
+    out = {}
+    for item in results:
+        resp = (item.get("response") or [{}])[0]
+        if "meta" not in resp:
+            continue
+        quote = resp.get("indicators", {}).get("quote", [{}])[0]
+        out[item["symbol"]] = (resp["meta"], [c for c in quote.get("close", []) if c is not None])
+    return out
+
+
+def spark_many(symbols: list[str]) -> dict[str, tuple[dict, list[float]]]:
+    batches = [symbols[i : i + 20] for i in range(0, len(symbols), 20)]
+    out: dict[str, tuple[dict, list[float]]] = {}
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for result in pool.map(spark, batches):
+            out.update(result)
+    return out
+
+
+def volume_vs_normal(symbol: str) -> str:
+    """Latest session's volume as a multiple of the previous 20 sessions' average."""
+    try:
+        vols = [r[2] for r in fetch_daily(symbol, "3mo")[1]]
+    except Exception:  # noqa: BLE001 - context only
+        return "?"
+    avg = sum(vols[-21:-1]) / 20 if len(vols) > 20 else 0
+    return f"{vols[-1] / avg:.1f}x" if avg else "?"
+
+
+def latest_headline(name: str, symbols: set[str], days: int = 4) -> str:
+    """The newest headline Yahoo ties to one of these symbols in the last few days, with link."""
+    try:
+        query = urllib.parse.quote(normalize_company(name) or name)
+        news = get_json(NEWS_URL.format(q=query)).get("news", [])
+    except Exception:  # noqa: BLE001 - context only
+        return ""
+    cutoff = dt.datetime.now(dt.UTC) - dt.timedelta(days=days)
+    for item in news:
+        published = dt.datetime.fromtimestamp(item["providerPublishTime"], dt.UTC)
+        if symbols & set(item.get("relatedTickers") or []) and published >= cutoff:
+            return (
+                f"{item['title']} ({item.get('publisher', '')}, {published:%b} {published.day})"
+                f" {item['link']}"
+            )
+    return ""
+
+
+def cmd_ca_movers(args: argparse.Namespace) -> None:
+    listings = [
+        x
+        for x in tsx_directory()
+        if not NON_SHARE_SUFFIX.search(x["symbol"])
+        and not FUND_NAME.search(x["name"])
+        and (args.cdrs or not x["cdr"])
+    ]
+    quotes = spark_many([x["yahoo"] for x in listings])
+    movers = []
+    for listing in listings:
+        meta, closes = quotes.get(listing["yahoo"], ({}, []))
+        if len(closes) < 2:
+            continue
+        price, move = closes[-1], closes[-1] / closes[-2] - 1
+        traded = price * (meta.get("regularMarketVolume") or 0)
+        if price >= args.min_price and traded >= args.min_value and abs(move) >= args.min_move:
+            movers.append((move, price, traded, listing))
+    movers.sort(key=lambda m: -abs(m[0]))
+    print(
+        f"{len(quotes)} of {len(listings)} TSX/TSX-V shares priced. {len(movers)} moved at least "
+        f"{args.min_move:.0%} in the latest session with C${args.min_value:,.0f}+ traded and a "
+        f"price of C${args.min_price:.2f}+. Volume is against the 20-day average."
+    )
+    for move, price, traded, listing in movers[: args.top]:
+        # Yahoo often tags interlisted companies with their US ticker, usually the same root.
+        tags = {listing["yahoo"], listing["symbol"]}
+        headline = latest_headline(listing["name"], tags) or "no headline found"
+        print(
+            f"{move:+7.1%} {listing['yahoo']:10s} C${price:<8.2f} C${traded / 1e6:6.2f}M "
+            f"vol {volume_vs_normal(listing['yahoo']):>6s} {listing['name'][:32]:32s} | {headline}"
+        )
+
+
+def tag_symbol(exchange: str, ticker: str) -> str:
+    """Press-release tag such as (TSXV: ABC.B) -> Yahoo symbol ABC-B.V."""
+    board = exchange.upper()
+    if board.startswith("TSX") and "V" in board[3:]:
+        suffix = ".V"
+    else:
+        suffix = {"TSX": ".TO", "CSE": ".CN"}.get(board, ".NE")
+    return ticker.upper().rstrip(".").replace(".", "-") + suffix
+
+
+def newswire_items(path: str, pages: int) -> list[dict[str, str]]:
+    items = []
+    for page in range(1, pages + 1):
+        req = urllib.request.Request(
+            f"{NEWSWIRE_URL}{path}?page={page}&pagesize=100", headers={"User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            text = resp.read().decode("utf-8", "replace")
+        for href, body in re.findall(
+            r'<a class="newsreleaseconsolidatelink[^"]*" href="([^"]+)">(.*?)</a>', text, re.S
+        ):
+            stamp = re.search(r"<small>([^<]*)</small>", body)
+            title = re.search(r"</small>\s*(.*?)</h3>", body, re.S)
+            summary = re.search(r'<p class="remove-outline">(.*?)</p>', body, re.S)
+            if not (stamp and title):
+                continue
+            when = stamp.group(1).strip()
+            day = (
+                dt.datetime.strptime(when[:12], "%b %d, %Y").date()
+                if "," in when
+                else dt.date.today()
+            )
+            items.append(
+                {
+                    "date": day.isoformat(),
+                    "title": html_to_text(title.group(1)),
+                    "summary": html_to_text(summary.group(1)) if summary else "",
+                    "url": NEWSWIRE_URL + href,
+                }
+            )
+    return items
+
+
+def cmd_ca_news(args: argparse.Namespace) -> None:
+    since = (dt.date.fromisoformat(args.since) if args.since else default_since()).isoformat()
+    seen: dict[str, dict[str, str]] = {}
+    for name in args.lists.split(","):
+        try:
+            for item in newswire_items(NEWSWIRE_LISTS[name.strip()], args.pages):
+                if item["date"] >= since:
+                    seen.setdefault(item["url"], item)
+        except Exception as exc:  # noqa: BLE001 - report and continue with the other lists
+            print(f"newswire list '{name}' unavailable ({exc})")
+    rows = []
+    for item in seen.values():
+        tag = CA_TAG.search(item["title"] + " " + item["summary"])
+        if not tag and not args.all:
+            continue
+        text = item["title"] + " " + item["summary"]
+        kind = next(
+            (k for k, pattern in CA_NEWS_KINDS if re.search(pattern, text, re.I)), "other news"
+        )
+        item["kind"] = kind
+        item["symbol"] = tag_symbol(*tag.groups()) if tag else ""
+        rows.append(item)
+    order = [k for k, _ in CA_NEWS_KINDS[:-1]] + ["other news", "financing"]
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    rows.sort(key=lambda r: order.index(r["kind"]))
+    quotes = spark_many(sorted({r["symbol"] for r in rows if r["symbol"]}))
+    print(
+        f"{len(rows)} Canadian press releases since {since} (newswire.ca: {args.lists}). "
+        "Move = latest session vs the one before."
+    )
+    for r in rows:
+        meta, closes = quotes.get(r["symbol"], ({}, []))
+        move = f"{closes[-1] / closes[-2] - 1:+.0%}" if len(closes) > 1 else ""
+        price = f"C${closes[-1]:.2f}" if closes else ""
+        print(
+            f"{r['date']} {r['kind']:13s} {r['symbol'] or '-':10s} {price:>9s} {move:>5s} "
+            f"{r['title'][:95]} {r['url']}"
+        )
+
+
+@functools.cache
+def cad_listings(ticker: str, name: str = "") -> tuple[dict[str, str], ...]:
+    """Ways to own a stock in Canadian dollars: its shares on a Canadian exchange, or a CDR."""
+    if is_canadian(ticker):
+        suffix = "." + ticker.rsplit(".", 1)[1].upper()
+        exchange = dict(zip(CAD_SUFFIXES, CAD_EXCHANGES.values(), strict=True))[suffix]
+        return ({"symbol": ticker, "exchange": exchange, "kind": "shares"},)
+    name = name or company_name(ticker)
+    key = normalize_company(name)
+    quotes: dict[str, dict] = {}
+    try:
+        # Yahoo matches "Curaleaf" but not "Curaleaf Holdings, Inc.", so try the bare name first.
+        for query in dict.fromkeys(q for q in (key, name) if q):
+            found = get_json(QUOTE_SEARCH_URL.format(q=urllib.parse.quote(query))).get("quotes")
+            for quote in found or []:
+                quotes.setdefault(quote["symbol"], quote)
+        hedged = {x["yahoo"] for x in tsx_directory() if x["cdr"]}
+    except Exception:  # noqa: BLE001 - treat as no Canadian listing found
+        return ()
+    lines = []
+    for quote in quotes.values():
+        label = quote.get("longname") or quote.get("shortname") or ""
+        other = normalize_company(label)
+        if (
+            quote.get("exchange") not in CAD_EXCHANGES
+            or quote.get("quoteType") != "EQUITY"
+            or FUND_NAME.search(label)
+            or not key
+            or not (other == key or other.startswith(key + " ") or key.startswith(other + " "))
+        ):
+            continue
+        if quote["symbol"] in hedged or "hedged" in other.split():
+            kind = "CDR, currency-hedged"
+        elif "cdr" in other.split():
+            kind = "CDR"
+        else:
+            kind = "shares"
+        lines.append(
+            {"symbol": quote["symbol"], "exchange": CAD_EXCHANGES[quote["exchange"]], "kind": kind}
+        )
+    # Cboe Canada also trades TSX-listed shares, but a US company found only there is a CDR.
+    if not any(x["kind"] == "shares" and x["exchange"] != "Cboe Canada" for x in lines):
+        for line in lines:
+            if line["kind"] == "shares":
+                line["kind"] = "CDR"
+    lines.sort(key=lambda x: ("shares", "CDR, currency-hedged", "CDR").index(x["kind"]))
+    return tuple(lines)
+
+
+def cad_symbol(ticker: str, name: str = "", shares_only: bool = False) -> str:
+    """The preferred Canadian-dollar symbol; shares_only skips CDRs (large US companies)."""
+    lines = [x for x in cad_listings(ticker, name) if not shares_only or x["kind"] == "shares"]
+    return lines[0]["symbol"] if lines else ""
+
+
+def cmd_cad_listing(args: argparse.Namespace) -> None:
+    for ticker in args.tickers:
+        lines = cad_listings(ticker.upper())
+        if not lines:
+            print(f"{ticker.upper()}: no Canadian-dollar listing found (US only)")
+            continue
+        for line in lines:
+            print(
+                f"{ticker.upper()}: {line['symbol']} on {line['exchange']} ({line['kind']}), "
+                f"{last_move(line['symbol'])}"
+            )
 
 
 def main() -> None:
@@ -1161,17 +1547,38 @@ def main() -> None:
     results.add_argument("--since", help="YYYY-MM-DD (default: three days ago)")
     results.add_argument("--no-prices", dest="prices", action="store_false")
     results.add_argument("--all", action="store_true", help="include non-healthcare filers")
+    results.add_argument("--us-too", action="store_true", help="include US-only listings")
     results.set_defaults(func=cmd_trial_results)
 
     upcoming = sub.add_parser("upcoming-trials")
     upcoming.add_argument("--days", type=int, default=90, help="finish dates up to N days ahead")
     upcoming.add_argument("--lookback", type=int, default=45, help="and up to N days back")
     upcoming.add_argument("--max-mcap", type=float, default=10.0, help="US$ billions")
+    upcoming.add_argument("--us-too", action="store_true", help="include US-only listings")
     upcoming.set_defaults(func=cmd_upcoming_trials)
 
     trial = sub.add_parser("trial-info")
     trial.add_argument("nct_id")
     trial.set_defaults(func=cmd_trial_info)
+
+    movers = sub.add_parser("ca-movers")
+    movers.add_argument("--min-move", type=float, default=0.08, help="fraction, e.g. 0.08")
+    movers.add_argument("--min-value", type=float, default=250_000, help="C$ traded")
+    movers.add_argument("--min-price", type=float, default=0.50, help="C$")
+    movers.add_argument("--top", type=int, default=30)
+    movers.add_argument("--cdrs", action="store_true", help="include CDRs of US companies")
+    movers.set_defaults(func=cmd_ca_movers)
+
+    ca_news = sub.add_parser("ca-news")
+    ca_news.add_argument("--since", help="YYYY-MM-DD (default: three days ago)")
+    ca_news.add_argument("--lists", default="deals,public,mining", help="comma-separated")
+    ca_news.add_argument("--pages", type=int, default=2, help="100 releases per page")
+    ca_news.add_argument("--all", action="store_true", help="include releases without a ticker")
+    ca_news.set_defaults(func=cmd_ca_news)
+
+    listing = sub.add_parser("cad-listing")
+    listing.add_argument("tickers", nargs="+")
+    listing.set_defaults(func=cmd_cad_listing)
 
     args = parser.parse_args()
     args.func(args)

@@ -9,7 +9,7 @@ This app runs on your laptop and emails you every weekday morning. One email cov
 
 Each weekday at the time you choose (6:30 a.m. by default), your computer's scheduler starts `scripts/morning_app.py run`. It then:
 
-1. **Skips the day** if both the US and Canadian markets are closed (weekends and shared holidays).
+1. **Skips the day** if the Canadian market is closed (weekends and TSX holidays). Picks are Canadian-dollar listings only, so US-only holidays still get an email.
 2. **Updates the tracker:** prices, returns, and new news and SEC filings for every tracked stock.
 3. **Starts Claude Code** on your machine, using your Claude plan, for the research. It reads the news, checks filings, re-rates stocks, looks for new short-term ideas, and writes the report and the top of the email. It is locked down:
    - it can run only the project's research tool and web search;

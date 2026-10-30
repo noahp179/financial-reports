@@ -6,27 +6,32 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
 
 ## Mandate (summary of the owner's standing instructions)
 
-- **Schedule:** Run every US/Canadian trading day (Mon–Fri, excluding NYSE/TSX holidays).
+- **Schedule:** Run every Canadian trading day (Mon–Fri, excluding TSX holidays). US-only holidays still get an email.
 - **Delivery:** Target 7:30–8:00 a.m. America/Toronto. Email only through an authorized, connected integration, and confirm delivery only when the email system reports success.
-- **Universe:** NYSE, Nasdaq, TSX and TSX-V common stocks, about US$50M–US$10B market cap, with exceptions flagged.
-  - Flag illiquidity, low float, dilution, OTC status and extreme volatility.
+- **Universe: Canadian-dollar listings only (owner's instruction, 2026-10-30).** The owner buys through Wealthsimple in Canadian dollars and loses money converting to US dollars. See "Canadian dollars only" below.
+  - Recommend only stocks that trade in C$ on the TSX, TSX-V, CSE or Cboe Canada, including CDRs (the Canadian versions of large US stocks).
+  - A US-listed company qualifies only through its Canadian line: interlisted shares (ACB.TO for Aurora) or a CDR (AAPL.TO for Apple). Quote, rate and track it on that line, in C$.
+  - Never recommend, rate or track a US-only listing, and don't put US-only ideas in the email.
+  - Exclude TSX lines quoted in US dollars (symbols ending in `.U`).
+  - Flag illiquidity, low float, dilution, extreme volatility and CSE-only listings (the CSE has the lightest listing rules).
 - **Owner's priority (clarified 2026-10-26):** the *highest potential return in a short time*, and **small and micro-caps are welcome**.
-  - Every report includes a **small-cap, short-horizon section** that scans for dated catalysts in the next 1–60 days. The core is:
-    - FDA decision dates (PDUFA) and advisory committees;
-    - Phase 2 and 3 topline readouts;
-    - tender offers and Dutch auctions;
-    - activist 13Ds at small caps;
+  - Every report includes a **small-cap, short-horizon section** that scans for dated catalysts in the next 1–60 days at Canadian-listed companies. The core is:
+    - takeover bids and plans of arrangement, including hostile bids and competing offers;
     - strategic reviews and sale processes;
-    - hostile bids;
+    - early warning reports (a holder crossing 10%) and activist campaigns;
+    - substantial issuer bids (company buyback offers) and Dutch auctions;
+    - mining results: drill results, resource estimates, PEA/PFS/feasibility studies, permits, first production;
+    - FDA, Health Canada and trial readouts at Canadian-listed drug and device companies;
     - contract awards;
-    - earnings at heavily shorted names.
-  - **Practical floor:** market cap of at least US$20M, price of at least US$1, and 20-day average daily dollar volume (ADV) of at least US$250K. Names below the floor can be mentioned but are flagged and `--capped`.
+    - earnings at heavily shorted names;
+    - S&P/TSX index changes and TSX-V graduations to the TSX.
+  - **Practical floor:** market cap of at least C$25M, price of at least C$0.50, and 20-day average daily traded value of at least C$250K. Names below the floor can be mentioned but are flagged and `--capped`. The C$0.50 price floor is lower than the old US$1 because many real Canadian small caps trade under C$1.
   - **Ranking:** by expected return. Each name also shows its **upside potential** (best-scenario return), P(gain ≥ 25%) and P(loss ≥ 25%), so the highest-potential lottery tickets are visible but are not confused with good bets.
   - **Binary events:** state plainly when the most likely outcome is a large loss.
   - **Sizing:** never recommend position sizes. Note "binary — size accordingly".
 - **Catalyst categories:**
   - M&A
-  - SEC and SEDAR+ filings (8-K, 13D, Form 4, merger and tender filings, proxies, early warning reports, SEDI)
+  - SEDAR+ and SEDI filings (material change reports, take-over bid circulars, arrangement circulars, early warning reports, insider trades), plus SEC filings for interlisted companies (6-K, 40-F, 8-K, 13D)
   - activism
   - commercial wins
   - earnings and fundamentals
@@ -34,9 +39,9 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - market anomalies (leads only)
   - restructuring
 - **Sources, in priority order:**
-  1. EDGAR, SEDAR+ and SEDI
-  2. issuer investor-relations releases
-  3. exchanges
+  1. SEDAR+ and SEDI (and EDGAR for interlisted companies)
+  2. issuer releases (newswire.ca, GlobeNewswire, Newsfile, Accesswire, company sites)
+  3. exchanges (TSX/TSX-V bulletins, halts, index notices)
   4. government and court documents
   5. Reuters and Bloomberg
   6. industry and market-data sources (supporting evidence only)
@@ -69,7 +74,45 @@ This folder holds the daily pre-catalyst research reports (`YYYY-MM-DD.md`) and 
   - Treat acquisition premiums as hypothetical unless an offer is confirmed.
 - **Tracking:** For each candidate, log first-seen date, score, evidence, price, catalyst, later announcements, 1/5/20/60 trading-day returns, outcome and invalidation. Avoid look-ahead bias and survivorship bias.
 
+## Canadian dollars only (owner's instruction, 2026-10-30)
+
+The owner buys through Wealthsimple and wants to avoid the US-dollar conversion. Every pick must be buyable in C$.
+
+**What counts:**
+
+| Listing | Example | Notes |
+|---|---|---|
+| TSX (`.TO`) | `WCP.TO` | The main board. |
+| TSX-V (`.V`) | `LUCA.V` | Venture exchange: small caps, juniors and explorers. |
+| CSE (`.CN`) | `SNDL.CN` | Lightest listing rules; flag liquidity and dilution. |
+| Cboe Canada (`.NE`) | `SHOP.NE` | Also trades TSX-listed shares, and lists CDRs. |
+| Interlisted shares | `ACB.TO` for Nasdaq `ACB` | The same shares as the US line, in C$. Use the Canadian line. |
+| CDR | `AAPL.TO`, `MSFT.NE` | A Canadian version of one of about 150 large US companies. The TSX lists them as "CDR (CAD Hedged)", so the return tracks the US stock without the exchange-rate swing. They don't exist for US small caps. |
+
+**How to check a US idea:** run `cad-listing TICKER`. It prints the C$ lines (interlisted shares first, then hedged CDRs, then other CDRs) or "no Canadian-dollar listing found (US only)". If there's none, drop the idea. Don't mention it in the email.
+
+**Daily Canadian scans** (US small-cap scans no longer apply):
+1. **`ca-news --since <last email>`.** Lists press releases from the newswire.ca deals, public-company and mining lists that carry a TSX, TSX-V or CSE ticker. It shows the latest price and move, and sorts them by type: takeover, asset sale, review, big holder, buyback, drug/medical, mining result, other, financing.
+   - Read the takeover, review, big-holder and buyback items first.
+   - Check terms against the price: "room left vs. terms" or "already priced in".
+   - The newswire.ca lists don't include GlobeNewswire or Newsfile releases, so also run a web search for "TSX-V" or "TSXV" plus "arrangement agreement", "take-over bid", "strategic review" and "drill results" over the last day.
+2. **`ca-movers`.** The biggest TSX and TSX-V moves of the latest session (default: at least 8%, C$250K traded, price C$0.50+). It shows volume against the 20-day average and the latest Yahoo headline.
+   - A big move with heavy volume and no headline is a lead to research, not a pick.
+   - Use `--cdrs` to include CDRs.
+3. **US catalysts** at large US companies with a CDR can still be used: check with `cad-listing`, and rate on the CDR's C$ price.
+
+**Canadian deal mechanics** (use when writing scenarios):
+- **Plan of arrangement:** a friendly deal that needs a two-thirds shareholder vote and court approval. It often closes in 2–4 months, longer when regulators must approve.
+- **Take-over bid:** must stay open at least 105 days (the target's board can shorten this to 35). It needs more than 50% of the shares not held by the bidder to be tendered, and is then extended 10 days.
+- **Early warning report:** required when a holder crosses 10% (5% while a take-over bid is outstanding). A news release must come out by the next trading day's open.
+- **Substantial issuer bid (SIB):** the Canadian term for a company's buyback offer. A normal course issuer bid (NCIB) is an ordinary market buyback.
+- SEDAR+ has no public API. Read the company's news release, which must be issued for material changes, and link the SEDAR+ profile when citing a filing.
+
 ## Clinical trial results and upcoming readouts (added 2026-10-27)
+
+**Canadian-dollar filter (2026-10-30):** `trial-results` and `upcoming-trials` now keep only companies with Canadian-listed shares; CDRs are skipped because one trial rarely moves a company that large. Use `--us-too` only to research context, never for picks.
+- `upcoming-trials` also matches trial sponsors against TSX and TSX-V company names.
+- `trial-results` searches SEC filings, so it only covers interlisted companies. For TSX-only drug companies, read the `drug/medical` items from `ca-news` and search the web.
 
 Small drug companies often move 30–90% in a day on trial results, which makes them the biggest short-term catalysts in the universe.
 
@@ -121,6 +164,7 @@ The 2026-10-26 post-mortem looked at that day's top movers and found three kinds
    - This is a lead, not evidence of a leak.
 4. **Pre-market check (about 7:00 ET).** For overnight deal reports or data releases, compare the pre-market price with any announced or reported terms. Say "room left vs. terms" or "already moved, don't chase".
    - Xencor faded from +39% pre-market to +14% at the close.
+   - Most TSX and TSX-V names don't trade before 9:30 ET, so "Price" is usually yesterday's close. For interlisted names, the US line's pre-market move times the exchange rate is a guide.
 
 **What these checks cannot do:** predict the timing of unannounced deals, or unexplained intraday rallies. Examples from that day: EQT/Range, High Liner, GrafTech (EAF), Xtend (XTND). Don't claim otherwise. Don't trade on suspected leaks.
 
@@ -139,13 +183,19 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
   | expected return | our estimate |
   | CRL | FDA rejection |
   | merger arb | already-agreed takeover |
+  | plan of arrangement | agreed takeover (needs a shareholder vote and court approval) |
+  | early warning report | big-holder filing |
+  | substantial issuer bid | company buyback offer |
+  | CDR | Canadian version of a US stock (CDR) |
+  | PEA / PFS / feasibility study | mine study (early / middle / final) |
 
   Never use RVOL, EV/EBITDA, Brier, scenario, base rate or market-implied in the email.
+- **Canadian dollars:** every price is in C$ and written "C$". Every pick is a Canadian listing. Link the Yahoo symbol with its suffix, for example `https://finance.yahoo.com/quote/ACB.TO`.
 - **Layout** (aim for one screen; at most 3 short sections plus the table):
   1. **One-line headline:** the single best idea today, or "No strong ideas today".
   2. **Table**, sorted Buy first, then the closest-to-Buy names, then long shots. Columns:
-     - **Stock:** ticker linked to `https://finance.yahoo.com/quote/<TICKER>`, plus the company name.
-     - **Price.**
+     - **Stock:** ticker linked to `https://finance.yahoo.com/quote/<YAHOO SYMBOL>` (for example `WCP.TO`), plus the company name and its exchange (TSX, TSX-V, CSE, or "CDR" for the Canadian version of a US stock).
+     - **Price:** in C$.
      - **What's coming:** plain words and date.
      - **Call:** Buy / Hold (buy under $X) / Sell / Long shot.
      - **If it works:** the % move and its chance, written out in full (for example, "+32% · 78% chance"), never a bare bracketed number.
@@ -156,7 +206,7 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
      At most about 8 rows.
   3. **Why:** one short line per Buy or near-Buy name.
   4. **Changes since yesterday:** new, removed, call changes, and results of past calls once events resolve, as one line each.
-  4b. **Trial results** (only when there are notable ones): at most 5 lines, one per readout since the last email, for drug and medical companies under about US$10B. Each line covers:
+  4b. **Trial results** (only when there are notable ones): at most 5 lines, one per readout since the last email, for Canadian-listed drug and medical companies under about C$10B. Each line covers:
       - company and ticker;
       - what was tested, in plain words ("a pill for X");
       - whether it worked ("met its main goal" or "missed it"), with the key number;
@@ -172,7 +222,7 @@ Every active name in `candidate_log.csv` is followed day to day. The data lives 
 
 | File | What it holds |
 |---|---|
-| `candidate_log.csv` | First-seen price, first call and the `keywords` used to filter headlines |
+| `candidate_log.csv` | First-seen price, first call and the `keywords` used to filter headlines. `yahoo_symbol` is the Canadian line (for example `ACB.TO`) and sets the price and currency. `sec_ticker` is the US ticker of an interlisted company, so its SEC filings are tracked; leave it blank otherwise, so that a TSX root like `HLF` doesn't pull in a US namesake's filings. |
 | `news_log.csv` | News headlines and SEC filings per stock (appended, never rewritten) |
 | `estimates_log.csv` | Every call and estimate over time, so changes such as "Hold → Buy" or "78% → 85%" are visible |
 | `calendar.csv` | Dated upcoming events, with `status` set to confirmed, reported or estimated |
@@ -180,6 +230,8 @@ Every active name in `candidate_log.csv` is followed day to day. The data lives 
 **Daily steps:**
 
 1. **Fetch news.** Run `python3 -I scripts/precatalyst.py track-news`. It appends the last 3 days of news and filings for active names, skips routine insider and registration forms, and drops market round-ups and headlines that don't name the company.
+   - Yahoo returns no news for `.TO`-style symbols, so Canadian names are searched by company name.
+   - SEDAR+ filings aren't fetched (there's no public API). Material changes come out as news releases, which appear here or in `ca-news`.
 2. **Read and re-rate.** Read anything material. Re-rate the stock if the news changes the odds by running `rate ... --ticker T --note "why"`, which appends to `estimates_log.csv`. Re-log a stock whenever its price has moved enough to change the estimate.
 3. **Keep the calendar current.**
    - Add new dated events.
@@ -187,7 +239,9 @@ Every active name in `candidate_log.csv` is followed day to day. The data lives 
    - Set status to `confirmed` only when the company or a regulator gave the date.
    - When an event resolves, record the outcome in `candidate_log.csv`.
 4. **Build the email sections.** Run `python3 -I scripts/precatalyst.py email-sections --since <previous email date> --out <scratch>/sections.html`. Paste the HTML into the morning email under the picks table.
-5. **Retire names.** When a name stops mattering (the deal closed, or the thesis is dead), set `status` to `closed` in `candidate_log.csv` with an `event_outcome`, and it drops out of tracking.
+5. **Retire names.** When a name stops mattering (the deal closed, or the thesis is dead), set `status` to `closed` in `candidate_log.csv` with an `event_outcome`, and it drops out of tracking. Closed names also drop off the email calendar.
+   - On 2026-10-30 every US-only name was closed this way when the owner switched to Canadian dollars. Aurora moved to its TSX line, `ACB.TO`.
+   - `update-log` still fills in returns for closed rows, so past calls can be scored.
 
 ## Ratings and predictions (added 2026-10-26 at the owner's request)
 
@@ -211,7 +265,7 @@ Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** ra
    - The tool also prints upside potential, P(gain ≥ 25%) and P(loss ≥ 25%). Report all three for short-horizon names.
    - Also report the price at which the rating would change.
 4. **Realistic range.** `python3 -I scripts/precatalyst.py snapshot TICKER` gives a 3-month 80% band from 1-year realized volatility. Do not use it for announced-deal names; use the deal and break scenarios instead.
-5. **Log predictions** in `candidate_log.csv`: rating, expected return, a precisely defined event with probability and deadline, and the 80% range with its date. Each run, run `python3 -I scripts/precatalyst.py update-log` to fill in returns and excess returns at 1, 5, 20 and 60 trading days (versus SPY for US names, XIU.TO for Canadian ones). When an event deadline passes, record `event_outcome` (1/0).
+5. **Log predictions** in `candidate_log.csv`: rating, expected return, a precisely defined event with probability and deadline, and the 80% range with its date. Each run, run `python3 -I scripts/precatalyst.py update-log` to fill in returns and excess returns at 1, 5, 20 and 60 trading days (versus XIU.TO for Canadian listings; SPY only for the closed US rows). When an event deadline passes, record `event_outcome` (1/0).
 6. **Calibration.** When there are 10 or more resolved events, report the Brier score and the hit rate of the 80% ranges. If the ranges hit less than about 70% of the time, widen them. Until there are 30 or more resolved predictions, say plainly that the ratings are uncalibrated. Never claim an edge without that evidence.
 7. **Not rated.** Leave a name unrated rather than guess when there was no scenario or valuation work.
 
@@ -232,7 +286,14 @@ Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** ra
   - Screeners: `https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved?scrIds=day_gainers|most_actives|small_cap_gainers`.
   - Ticker news: `https://query1.finance.yahoo.com/v1/finance/search?q=<TICKER>&newsCount=6`.
   - The `v7/quote` endpoint is **not** accessible (unauthorized).
-- **Canadian M&A releases:** `https://www.newswire.ca/news-releases/financial-services-latest-news/acquisitions-mergers-and-takeovers-list/`.
+- **Canadian sources (tested 2026-10-30):**
+  - **Every TSX and TSX-V listing:** `https://www.tsx.com/json/company-directory/search/tsx/%5E*` (and `/tsxv/`). CDRs are named "… CDR (CAD Hedged)".
+  - **Batch quotes:** `https://query1.finance.yahoo.com/v7/finance/spark?symbols=A.TO,B.V&range=5d&interval=1d`. At most 20 symbols per request; daily closes only, and the meta carries the latest volume.
+  - **Yahoo symbols:** TSX share classes and units use a dash (`BBD-B.TO`, `REI-UN.TO`); TSX-V is `.V`, CSE is `.CN`, Cboe Canada is `.NE`.
+  - **Yahoo news:** search by company name; `.TO` symbol searches return nothing. Stories are tagged with the `.TO` symbol, or the US ticker for interlisted names.
+  - **Canadian lines of a US stock:** Yahoo search by company name. Exchange codes TOR, VAN, CNQ and NEO are Canadian.
+  - **newswire.ca list pages** (add `?page=1&pagesize=100`): deals `…/financial-services-latest-news/acquisitions-mergers-and-takeovers-list/`, all public companies `…/news-releases/all-public-company-news/`, mining `…/energy-latest-news/mining-list/`.
+  - **Not reachable from here:** newswire.ca, GlobeNewswire, Newsfile and Accesswire RSS feeds (blocked or empty), and SEDAR+.
 - **Insider cluster buys (secondary source):** `http://openinsider.com/latest-cluster-buys`.
 - **Known gaps:**
   - SEDAR+ and SEDI have no direct programmatic access.

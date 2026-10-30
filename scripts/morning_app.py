@@ -346,8 +346,9 @@ def cmd_run(args: argparse.Namespace) -> None:
     today = dt.date.today()
     state = load_json(STATE_FILE)
     status = market_status(today)
-    if status == "both-closed" and not args.force:
-        log(f"run: {today} is a weekend or a US and Canadian market holiday; nothing sent")
+    # The owner buys only in Canadian dollars, so a day the TSX is closed has nothing to act on.
+    if status in ("both-closed", "ca-closed") and not args.force:
+        log(f"run: {today} is a weekend or a Canadian market holiday; nothing sent")
         return
     if state.get("last_sent") == today.isoformat() and not (args.force or args.dry_run):
         log("run: today's email was already sent")
@@ -374,9 +375,7 @@ def cmd_run(args: argparse.Namespace) -> None:
             log(f"{step[0]}: exit {done.returncode}; {done.stdout.strip().splitlines()[-1:]}")
         notes = []
         if status == "us-closed":
-            notes.append("US markets are closed today; Canadian markets are open")
-        elif status == "ca-closed":
-            notes.append("Canadian markets are closed today; US markets are open")
+            notes.append("US markets are closed today, so US-linked CDR prices may not move")
         ok, summary = (False, "research skipped (--skip-research)")
         if not args.skip_research:
             ok, summary = research(cfg, today, since)

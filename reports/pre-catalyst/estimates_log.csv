@@ -33,3 +33,4 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-10-30,CART,56.57,Hold,0.0536,0.2374,0.03,-0.0985,0.03,"Merger 8-K: DoorDash pays 1.25B (~4.80/share) if blocked by regulators, must litigate and offer remedies; outside date 12 months plus up to four 3-month extensions; NYC mayor criticism, FTC scrutiny; 56.57 pre-market"
 2026-10-30,CAPR,6.46,Sell,-0.1293,1.4768,0.20,-0.5743,0.70,"Closed 6.63 on 10/29 (+6%), 6.46 pre-market; no news; FDA Nov 22"
 2026-10-30,INVE,2.63,Hold,0.0779,0.2928,0.20,-0.1065,0.30,Revised Q3 (10/30): net loss 1.1-1.3M instead of small profit (asset-sale adjustments); cash 87.1M unchanged; tender 2.85-3.40 to Nov 19; 2.63 pre-market
+2026-10-30,ACB,5.66,Hold,0.0053,0.2191,0.20,-0.2580,0.30,Now tracked on the TSX line ACB.TO in CAD. Curaleaf bid = 0.4013 CURA.TO (C$11.73) + US$1.00 (C$1.40) = about C$6.10; ACB.TO C$5.66; bid expires Dec 4
