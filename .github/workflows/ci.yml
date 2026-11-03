@@ -1,5 +1,10 @@
 name: ci
-on: [push, pull_request]
+# The daily stock-picks run commits only reports, which have no code to test.
+on:
+  push:
+    paths-ignore: ['reports/**', '**.md']
+  pull_request:
+    paths-ignore: ['reports/**', '**.md']
 
 jobs:
   test:

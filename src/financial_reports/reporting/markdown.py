@@ -9,4 +9,4 @@ from financial_reports.models.outputs import ReportOutput
 
 def render_markdown(report: ReportOutput, template_path: str) -> str:
     template = Template(Path(template_path).read_text())
-    return template.render(report=report.model_dump())
+    return str(template.render(report=report.model_dump()))
