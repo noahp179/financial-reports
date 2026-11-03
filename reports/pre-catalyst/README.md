@@ -191,6 +191,11 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
 
   Never use RVOL, EV/EBITDA, Brier, scenario, base rate or market-implied in the email.
 - **Canadian dollars:** every price is in C$ and written "C$". Every pick is a Canadian listing. Link the Yahoo symbol with its suffix, for example `https://finance.yahoo.com/quote/ACB.TO`.
+- **Keep the email Canadian-only (owner, 2026-11-03).** The owner read US mentions as US picks. So:
+  - **No US prices:** never show a US price, a US ticker or a Nasdaq/NYSE move, even for a Canadian company that is also listed in the US. Quote only the Canadian line.
+  - **Deal values in C$:** convert any deal term set in US dollars and write only the C$ value, for example "worth about C$6.55 a share".
+  - **US companies only as cause:** name one only when it explains a Canadian stock's move, by name, in one clause, with no ticker or price. Don't list US-only stocks under "passed on" or "watching".
+  - **Say where each company trades:** in the table, give the exchange (TSX, TSX-V, CSE or Cboe Canada) after each name.
 - **Layout** (aim for one screen; at most 3 short sections plus the table):
   1. **One-line headline:** the single best idea today, or "No strong ideas today".
   2. **Table**, sorted Buy first, then the closest-to-Buy names, then long shots. Columns:
