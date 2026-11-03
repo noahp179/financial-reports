@@ -45,6 +45,7 @@ import functools
 import html
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -58,7 +59,14 @@ CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{t}?interval=1d&r
 NEWS_URL = "https://query1.finance.yahoo.com/v1/finance/search?q={q}&newsCount=10&quotesCount=0"
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
-SEC_HEADERS = {"User-Agent": "PreCatalystResearch nepollack@gmail.com"}
+# www.sec.gov (filing documents, the current-filings feed, the ticker list) wants a contact email in
+# the User-Agent; data.sec.gov and full-text search don't. The contact is the owner's choice, so it
+# is only sent when PRECATALYST_SEC_CONTACT is set.
+SEC_HEADERS = {
+    "User-Agent": " ".join(
+        filter(None, ("PreCatalystResearch/1.0", os.environ.get("PRECATALYST_SEC_CONTACT", "")))
+    )
+}
 TRACK_DIR = Path(__file__).resolve().parent.parent / "reports/pre-catalyst"
 DEFAULT_LOG = TRACK_DIR / "candidate_log.csv"
 NEWS_LOG = TRACK_DIR / "news_log.csv"

@@ -273,7 +273,9 @@ Every researched name gets a **Strong Buy / Buy / Hold / Sell / Strong Sell** ra
 
 - **EDGAR current feed:**
   - URL: `https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=SCHEDULE%2013D&count=40&output=atom`. Since 2024 the form type is `SCHEDULE 13D`, not `SC 13D`.
-  - Send a descriptive `User-Agent` header with a contact address.
+  - **User-Agent and contact email:** `www.sec.gov` (filing documents, the current-filings feed, `company_tickers.json`) returns 403 unless the User-Agent has a contact email. `data.sec.gov` and full-text search work without one.
+    - The scripts send the generic `PreCatalystResearch/1.0`. They add a contact only when the environment variable `PRECATALYST_SEC_CONTACT` is set, which is the owner's choice.
+    - Never put a made-up address there.
 - **EDGAR full-text search:**
   - URL: `https://efts.sec.gov/LATEST/search-index?q="<phrase>"&forms=8-K,6-K&dateRange=custom&startdt=YYYY-MM-DD&enddt=YYYY-MM-DD`.
   - Useful phrases: "strategic alternatives", "agreement and plan of merger", "special committee", "non-binding proposal".
