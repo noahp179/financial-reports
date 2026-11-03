@@ -217,6 +217,11 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
       - whether it worked ("met its main goal" or "missed it"), with the key number;
       - the stock's move;
       - our take ("already priced in", "overreaction worth watching", or "now a Buy/Sell because…").
+  4c. **Other Canadian news** (added at the owner's request, 2026-11-03): 4–8 one-line items so the owner sees what the scan covered, not just the picks.
+      - **Sources:** the day's notable Canadian deals, results, big moves (`ca-movers`) and releases (`ca-news`), plus web results for GlobeNewswire and Newsfile items, which `ca-news` can't reach.
+      - **Each line:** company (exchange), C$ price and move, what happened in plain words, and the verdict ("already priced in", "too small to trade", "no upcoming event" or "added to watch").
+      - **Floor:** no sub-C$0.50 shells or routine notices. If it was truly quiet, say so in one line.
+  4d. **Grow the tracker.** The Canadian list restarted from zero on 2026-10-30. Until it holds about 10 names, add every liquid Canadian stock (C$0.50+, about C$250K a day) that has a dated event in the next 90 days and real research behind it, rated (usually Hold with a buy price). Examples: results days, FDA or Health Canada decisions, trial readouts, takeover votes, mine studies.
   5. **Tracked stocks and Calendar:** paste the HTML produced by `email-sections` (see "Tracking news, prices and estimates" below). It replaces a separate key-dates list.
   6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
 - **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").

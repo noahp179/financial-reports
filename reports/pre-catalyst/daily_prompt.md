@@ -75,7 +75,8 @@ You cannot run other shell commands, send email or use git. The app does those a
 4. **Full report.** Write it to `reports/pre-catalyst/{date}.md`.
 5. **Email top part.** Write it to `reports/pre-catalyst/email/{date}.html`.
    - It is an HTML fragment with inline styles and no `<html>` or `<body>` tags.
-   - Include items 1–4b of the README email template: the one-line headline, today's picks table, a one-line "why" for each Buy or near-Buy, changes since yesterday (including results of past calls), and up to 5 trial-result lines when there are notable ones.
+   - Include items 1–4c of the README email template: the one-line headline, today's picks table, a one-line "why" for each Buy or near-Buy, changes since yesterday (including results of past calls), up to 5 trial-result lines when there are notable ones, and 4–8 lines of other Canadian news with a verdict on each.
+   - Follow 4d: keep adding rated Canadian names with dated events until the tracker holds about 10.
    - Write the chances out in full, like "+32% · 78% chance".
    - Don't add the tracked-stocks table, the calendar or a footer. The app appends those.
 6. **Subject line.** Write it to `reports/pre-catalyst/email/{date}.subject.txt`, for example `Morning Stock Picks — {short_date} — 1 Buy`. Use `No Buys today` when there are none.
