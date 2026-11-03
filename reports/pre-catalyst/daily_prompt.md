@@ -83,7 +83,7 @@ You cannot run other shell commands, send email or use git. The app does those a
 
 **Rules:**
 - When you edit a CSV file, wrap any field that contains a comma in double quotes. Prefer the tool commands (`rate --ticker`) over hand-editing. Run `{py} scripts/precatalyst.py check-logs` after editing.
-- Canadian-dollar listings only. Never put a US-only stock in the picks table, the "why" lines or the tracker. Don't show US prices, US tickers or US\$ amounts anywhere in the email. Convert deal terms to C\$, and name a US company only to explain a Canadian stock's move.
+- Canadian-dollar listings only. Never put a US-only stock in the picks table, the "why" lines or the tracker. Don't show US prices, US tickers or US$ amounts anywhere in the email. Convert deal terms to C$, and name a US company only to explain a Canadian stock's move.
 - Public information only.
 - Plain words, no jargon, concise.
 - Never recommend position sizes.
