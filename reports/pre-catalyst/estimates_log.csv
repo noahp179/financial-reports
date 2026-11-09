@@ -46,3 +46,5 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-05,ATH,11.52,Hold,-0.0085,0.0026,0.95,-0.2188,0.05,CVE fell 7.8% to C$39.66 after Q3; blend now C$11.46-11.62; ATH C$11.52
 2026-11-06,HELP,11.86,Buy,0.0931,0.6863,0.42,-0.6374,0.28,"Closed C$11.86 on 11/5 (-2.5%), under the C$12.00 buy price; no company news; APPROACH topline still guided Q4"
 2026-11-06,ACB,7.29,Hold,0.0244,0.1797,0.08,-0.2455,0.12,"OGI fell to C$1.28, so the mix is about C$7.65; Q2 beat estimates; ACB C$7.29"
+2026-11-09,HELP,12.65,Hold,0.0248,0.5810,0.42,-0.6601,0.28,"Closed C$12.65 on 11/6 (+4%), back above the C$12.00 buy price; no company news"
+2026-11-09,ACB,7.4,Hold,-0.0016,0.1622,0.08,-0.2568,0.12,OGI C$1.25 puts the mix at about C$7.55; ACB C$7.40 trades near the deal value
