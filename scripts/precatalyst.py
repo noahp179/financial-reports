@@ -1105,7 +1105,12 @@ def cmd_upcoming_trials(args: argparse.Namespace) -> None:
         token = data.get("nextPageToken")
         if not token or len(studies) >= 5000:
             break
-    index = sec_company_index()
+    try:
+        index = sec_company_index()
+    except Exception as exc:  # noqa: BLE001 - TSX and TSX-V names are still matched
+        # www.sec.gov refuses the ticker list without a contact email (PRECATALYST_SEC_CONTACT).
+        print(f"SEC company list unavailable ({exc}); matching TSX and TSX-V names only")
+        index = {}
     # TSX and TSX-V companies that don't file with the SEC are matched by name to their listing.
     ca_index: dict[str, tuple[str, int]] = {}
     if not args.us_too:
