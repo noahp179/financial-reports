@@ -49,3 +49,5 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-09,HELP,12.65,Hold,0.0248,0.5810,0.42,-0.6601,0.28,"Closed C$12.65 on 11/6 (+4%), back above the C$12.00 buy price; no company news"
 2026-11-09,ACB,7.4,Hold,-0.0016,0.1622,0.08,-0.2568,0.12,OGI C$1.25 puts the mix at about C$7.55; ACB C$7.40 trades near the deal value
 2026-11-10,HELP,13.28,Hold,-0.0238,0.5060,0.42,-0.6762,0.28,CEO 11/9: APPROACH readout on track for later this quarter; about US$165M cash; HELP.NE C$13.28 (+4%)
+2026-11-11,HELP,13,Hold,-0.0030,0.5385,0.42,-0.6692,0.28,Closed C$13.00 on 11/10 (-2%); no company news; APPROACH topline still guided later this quarter
+2026-11-11,GFR,10.94,Hold,-0.0100,0.0055,0.92,-0.2770,0.05,"Strathcona deal 11/8: C$11.00 cash or 0.25 SCR, no proration; WEF (72%) supports; meetings Jan 2027; needs minority approval"
