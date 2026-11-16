@@ -56,3 +56,6 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-13,HELP,12.71,Hold,0.0197,0.5736,0.42,-0.6617,0.28,Closed C$12.71 on 11/12 (-5.7%); no company news; APPROACH topline still guided this quarter
 2026-11-13,LCFS,22.78,Hold,-0.0041,0.0057,0.93,-0.2098,0.04,LCFS +20% with TWM +18% after Q3 and raised guidance; 0.88 TWM = C$22.91; votes Dec 14
 2026-11-13,FCR,23.19,Hold,0.0296,0.0371,0.88,-0.0944,0.04,KingSett/Choice arrangement: C$19.24 cash + 0.3186 CHP (C$24.05 at CHP 15.10); holders approved June; 11/12 close now Q4 2026 or Q1 2027; Competition Act pending
+2026-11-16,T,12.14,Hold,0.0255,0.1425,0.20,-0.0774,0.15,"TELUS confirms 11/16 an amended non-binding Quebecor proposal: 0.17 QBR-B per share (C$13.10 at QBR 77.06, +7.9% vs Fri close); board says value and regulatory risk not addressed; CEOs to meet Nov 23"
+2026-11-16,CF,14.79,Hold,0.0225,0.1156,0.06,-0.1684,0.07,"Take-private by CEO Daviau 11/15: C$15.27 cash (C$7.45 + GBP 4.15, unhedged); 45-day go-shop to Dec 30; ~35% support; vote Q1 2027"
+2026-11-16,ATH,11.65,Hold,0.0001,0.0069,0.97,-0.2189,0.03,ISS recommends FOR; meeting Nov 27 (vote deadline Nov 25); blend C$11.73 at CVE 41.49
