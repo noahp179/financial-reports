@@ -59,3 +59,5 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-16,T,12.14,Hold,0.0255,0.1425,0.20,-0.0774,0.15,"TELUS confirms 11/16 an amended non-binding Quebecor proposal: 0.17 QBR-B per share (C$13.10 at QBR 77.06, +7.9% vs Fri close); board says value and regulatory risk not addressed; CEOs to meet Nov 23"
 2026-11-16,CF,14.79,Hold,0.0225,0.1156,0.06,-0.1684,0.07,"Take-private by CEO Daviau 11/15: C$15.27 cash (C$7.45 + GBP 4.15, unhedged); 45-day go-shop to Dec 30; ~35% support; vote Q1 2027"
 2026-11-16,ATH,11.65,Hold,0.0001,0.0069,0.97,-0.2189,0.03,ISS recommends FOR; meeting Nov 27 (vote deadline Nov 25); blend C$11.73 at CVE 41.49
+2026-11-17,T,13.7,Hold,0.0493,0.2774,0.25,-0.1241,0.25,Correction: Quebecor proposal is C$6.35 cash + 0.17 QBR-B (C$19.45 at 11/13; C$17.44 at QBR 65.25 after QBR -15%); T +12.9% to 13.70; board unsatisfied; non-binding; meeting Nov 23
+2026-11-17,ACB,6.6,Hold,0.0151,0.0470,0.80,-0.1773,0.12,OGI -11.9% to 1.04 (Nasdaq bid-price notice); mix now C$6.91; ACB 6.60 (-6.4%); Curaleaf offer ~C$6.04

@@ -18,7 +18,6 @@ date,ticker,event,status,source
 2027-12-31,CART,Deal closing (companies expect end of 2027 to first half of 2028),estimated,https://www.sec.gov/Archives/edgar/data/1579091/000179278926000065/dashform425combined.htm
 2026-11-11,PYPD,Q3 results,confirmed,https://finance.yahoo.com/healthcare/articles/polypid-report-third-quarter-2026-120000488.html
 2026-11-05,ACB,Q2 results (released early; deal already agreed),confirmed,https://finance.yahoo.com/markets/stocks/articles/aurora-cannabis-host-second-quarter-110000789.html
-2026-12-31,HELP,Phase 3 APPROACH depression results (company guided Q4 2026; date not set),estimated,https://finance.yahoo.com/healthcare/articles/helus-pharma-highlights-clinical-program-201000421.html
 2026-12-31,RM,SSR Mining deal expected to close (company: December 2026),estimated,https://www.bnnbloomberg.ca/markets/gold/2026/10/13/ssr-mining-signs-deal-to-buy-roxmore-resources-and-its-converse-gold-project/
 2027-03-31,HLF,Umios deal expected to close (company: Q1 2027),estimated,https://finance.yahoo.com/news/high-liner-foods-enters-agreement-111100840.html
 2027-01-31,ACB,Organigram deal expected to close (company: January 2027),estimated,https://finance.yahoo.com/markets/stocks/articles/organigram-global-acquire-aurora-cannabis-165018469.html
@@ -32,3 +31,4 @@ date,ticker,event,status,source
 2026-11-23,T,TELUS and Quebecor CEOs and CFOs meet on the proposal (TELUS invitation),reported,https://www.newswire.ca/news-releases/telus-confirms-receipt-of-unsolicited-proposal-from-quebecor-continues-review-of-strategic-alternatives-857006698.html
 2026-12-30,CF,Go-shop period ends (a higher bid can come before this),confirmed,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
 2027-03-31,CF,Shareholder vote on take-private (company: Q1 2027),estimated,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
+2026-11-16,HELP,Phase 3 APPROACH results: met primary endpoint (stock -13.6%),confirmed,https://finance.yahoo.com/healthcare/articles/helus-pharma-announces-positive-topline-120000461.html
