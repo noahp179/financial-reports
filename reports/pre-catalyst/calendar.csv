@@ -8,30 +8,30 @@ date,ticker,event,status,source
 2026-10-29,CART,Q3 results (released early with the deal),confirmed,https://www.sec.gov/Archives/edgar/data/1579091/000119312526437014/d24470d8k.htm
 2026-11-12,INVE,Q3 report (explains cash drop),estimated,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111181/ea030911901ex99-1.htm
 2026-11-19,INVE,Buyback offer closes 5pm ET,confirmed,https://www.sec.gov/Archives/edgar/data/1036044/000121390026111186/ea0308959-01.htm
-2026-11-22,CAPR,FDA decision,confirmed,https://www.sec.gov/Archives/edgar/data/1133869/000110465926100071/
-2026-11-22,SVRA,FDA decision (Molbreevi),confirmed,https://www.sec.gov/Archives/edgar/data/1160308/000119312526344585/svra-20260630.htm
-2026-11-28,PYPD,FDA decision,confirmed,https://www.sec.gov/Archives/edgar/data/1611842/000121390026088040/
+2026-11-22,CAPR,FDA decision (deramiocel for Duchenne; US only) · 22% approval,confirmed,https://www.sec.gov/Archives/edgar/data/1133869/000110465926100071/
+2026-11-22,SVRA,FDA decision (Molbreevi for autoimmune PAP; US only) · 75% approval,confirmed,https://www.sec.gov/Archives/edgar/data/1160308/000119312526344585/svra-20260630.htm
+2026-11-28,PYPD,FDA decision (D-PLEX100 for surgical infections; US only) · 85% approval,confirmed,https://www.sec.gov/Archives/edgar/data/1611842/000121390026088040/
 2026-12-04,ACB,Curaleaf takeover bid expires,confirmed,https://www.sec.gov/Archives/edgar/data/0001683541/000127956926000955/ex991.htm
-2026-12-12,VNDA,FDA decision (Quimilza),confirmed,https://www.sec.gov/Archives/edgar/data/1347178/000162828026053308/
+2026-12-12,VNDA,FDA decision (Quimilza for GPP skin disease; US only) · 60% approval,confirmed,https://www.sec.gov/Archives/edgar/data/1347178/000162828026053308/
 2026-11-02,BVS,Q3 earnings,confirmed,https://finance.yahoo.com/quote/BVS/news
 2026-12-31,ZURA,Phase 2 skin-disease (HS) results (company guided Q4 2026; date not set),estimated,https://www.sec.gov/Archives/edgar/data/1855644/000185564426000012/corporatedeck_zurabiox27.htm
 2027-12-31,CART,Deal closing (companies expect end of 2027 to first half of 2028),estimated,https://www.sec.gov/Archives/edgar/data/1579091/000179278926000065/dashform425combined.htm
 2026-11-11,PYPD,Q3 results,confirmed,https://finance.yahoo.com/healthcare/articles/polypid-report-third-quarter-2026-120000488.html
 2026-11-05,ACB,Q2 results (released early; deal already agreed),confirmed,https://finance.yahoo.com/markets/stocks/articles/aurora-cannabis-host-second-quarter-110000789.html
-2026-12-31,RM,SSR Mining deal expected to close (company: December 2026),estimated,https://www.bnnbloomberg.ca/markets/gold/2026/10/13/ssr-mining-signs-deal-to-buy-roxmore-resources-and-its-converse-gold-project/
-2027-03-31,HLF,Umios deal expected to close (company: Q1 2027),estimated,https://finance.yahoo.com/news/high-liner-foods-enters-agreement-111100840.html
-2027-01-31,ACB,Organigram deal expected to close (company: January 2027),estimated,https://finance.yahoo.com/markets/stocks/articles/organigram-global-acquire-aurora-cannabis-165018469.html
-2026-11-27,ATH,Shareholder vote on Cenovus deal (proxy deadline Nov 25),confirmed,https://finance.yahoo.com/markets/stocks/articles/independent-proxy-advisory-firms-recommend-192400221.html
-2026-12-31,ATH,Cenovus deal expected to close (company: December),estimated,https://finance.yahoo.com/energy/articles/athabasca-oil-announces-agreement-acquired-100000680.html
-2027-01-12,GFR,"Special meeting to vote on Strathcona deal (record date 11/23; per notice exhibit, not opened)",reported,https://www.sec.gov/Archives/edgar/data/1966287/000121390026119079/ea0312065-6k_greenfire.htm
-2026-12-15,HLF,Shareholder vote on Umios deal (75% needed),confirmed,https://www.newswire.ca/news-releases/high-liner-foods-announces-december-15-special-meeting-of-shareholders-and-receipt-of-interim-court-order-for-proposed-acquisition-by-umios-844732789.html
-2026-12-14,LCFS,Shareholder votes on Tidewater Midstream deal (company: expected),estimated,https://www.newswire.ca/news-releases/tidewater-renewables-ltd-announces-third-quarter-2026-results-update-on-proposed-transaction-with-tidewater-midstream-operational-update-and-increased-2026-guidance-812987993.html
-2026-12-18,LCFS,Tidewater Midstream deal expected to close (company: on or about),estimated,https://www.newswire.ca/news-releases/tidewater-renewables-ltd-announces-third-quarter-2026-results-update-on-proposed-transaction-with-tidewater-midstream-operational-update-and-increased-2026-guidance-812987993.html
-2027-03-31,FCR,KingSett/Choice deal expected to close (company: Q4 2026 or Q1 2027),estimated,https://www.newswire.ca/news-releases/first-capital-provides-update-on-timing-of-completion-of-arrangement-with-kingsett-capital-and-choice-properties-reit-866732099.html
-2026-11-23,T,TELUS and Quebecor CEOs and CFOs meet on the proposal (TELUS invitation),reported,https://www.newswire.ca/news-releases/telus-confirms-receipt-of-unsolicited-proposal-from-quebecor-continues-review-of-strategic-alternatives-857006698.html
-2026-12-30,CF,Go-shop period ends (a higher bid can come before this),confirmed,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
-2027-03-31,CF,Shareholder vote on take-private (company: Q1 2027),estimated,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
+2026-12-31,RM,SSR Mining deal expected to close (company: December 2026) · 93% closes,estimated,https://www.bnnbloomberg.ca/markets/gold/2026/10/13/ssr-mining-signs-deal-to-buy-roxmore-resources-and-its-converse-gold-project/
+2027-03-31,HLF,Umios deal expected to close (company: Q1 2027) · 93% closes,estimated,https://finance.yahoo.com/news/high-liner-foods-enters-agreement-111100840.html
+2027-01-31,ACB,Organigram deal expected to close (company: January 2027) · 80% closes,estimated,https://finance.yahoo.com/markets/stocks/articles/organigram-global-acquire-aurora-cannabis-165018469.html
+2026-11-27,ATH,Shareholder vote on Cenovus deal (proxy deadline Nov 25) · 97% passes,confirmed,https://finance.yahoo.com/markets/stocks/articles/independent-proxy-advisory-firms-recommend-192400221.html
+2026-12-31,ATH,Cenovus deal expected to close (company: December) · 97% closes,estimated,https://finance.yahoo.com/energy/articles/athabasca-oil-announces-agreement-acquired-100000680.html
+2027-01-12,GFR,"Special meeting to vote on Strathcona deal (record date 11/23; per notice exhibit, not opened) · 92% passes",reported,https://www.sec.gov/Archives/edgar/data/1966287/000121390026119079/ea0312065-6k_greenfire.htm
+2026-12-15,HLF,Shareholder vote on Umios deal (75% needed) · 93% passes,confirmed,https://www.newswire.ca/news-releases/high-liner-foods-announces-december-15-special-meeting-of-shareholders-and-receipt-of-interim-court-order-for-proposed-acquisition-by-umios-844732789.html
+2026-12-14,LCFS,Shareholder votes on Tidewater Midstream deal (company: expected) · 93% pass,estimated,https://www.newswire.ca/news-releases/tidewater-renewables-ltd-announces-third-quarter-2026-results-update-on-proposed-transaction-with-tidewater-midstream-operational-update-and-increased-2026-guidance-812987993.html
+2026-12-18,LCFS,Tidewater Midstream deal expected to close (company: on or about) · 93% closes,estimated,https://www.newswire.ca/news-releases/tidewater-renewables-ltd-announces-third-quarter-2026-results-update-on-proposed-transaction-with-tidewater-midstream-operational-update-and-increased-2026-guidance-812987993.html
+2027-03-31,FCR,KingSett/Choice deal expected to close (company: Q4 2026 or Q1 2027) · 88% closes,estimated,https://www.newswire.ca/news-releases/first-capital-provides-update-on-timing-of-completion-of-arrangement-with-kingsett-capital-and-choice-properties-reit-866732099.html
+2026-11-23,T,TELUS and Quebecor CEOs and CFOs meet on the proposal · 22% deal,reported,https://www.newswire.ca/news-releases/telus-confirms-receipt-of-unsolicited-proposal-from-quebecor-continues-review-of-strategic-alternatives-857006698.html
+2026-12-30,CF,Go-shop period ends (a higher bid can come before this) · 6% higher bid,confirmed,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
+2027-03-31,CF,Shareholder vote on take-private (company: Q1 2027) · 82% closes,estimated,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
 2026-11-16,HELP,Phase 3 APPROACH results: met primary endpoint (stock -13.6%),confirmed,https://finance.yahoo.com/healthcare/articles/helus-pharma-announces-positive-topline-120000461.html
-2026-12-31,ACB,Aurora and Organigram shareholder votes on the deal (company: December; date not set),estimated,https://www.bnnbloomberg.ca/press-releases/2026/11/03/organigram-to-acquire-aurora-and-establish-a-global-cannabis-leader/
-2026-11-30,COGT,FDA decision (bezuclastinib for GIST; US only),confirmed,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html
-2026-12-30,COGT,FDA decision (bezuclastinib for non-advanced systemic mastocytosis; US only),reported,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html
+2026-12-31,ACB,Aurora and Organigram shareholder votes on the deal (company: December; date not set) · 80% pass,estimated,https://www.bnnbloomberg.ca/press-releases/2026/11/03/organigram-to-acquire-aurora-and-establish-a-global-cannabis-leader/
+2026-11-30,COGT,FDA decision (bezuclastinib for GIST; US only) · 80% approval,confirmed,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html
+2026-12-30,COGT,FDA decision (bezuclastinib for non-advanced systemic mastocytosis; US only) · odds not rated yet,reported,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html

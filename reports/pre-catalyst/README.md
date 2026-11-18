@@ -257,6 +257,7 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
   5. **Tracked stocks and Calendar:** paste the HTML produced by `email-sections` (see "Tracking news, prices and estimates" below). It replaces a separate key-dates list.
      - **Calendar odds (owner, 2026-11-18):** every calendar entry shows its odds, for example "FDA decision · 85% approval" or "takeover vote · 97% closes".
      - The calendar includes the drug-approval dates from 1a, US-only ones too, marked "(US only)".
+     - **How:** write the odds at the end of the event text in `calendar.csv` (for example `FDA decision (D-PLEX100; US only) · 85% approval`), and update them whenever the estimate changes. `email-sections` shows every row whose event mentions FDA or Health Canada, even for names not in the tracker.
   6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
 - **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").
 

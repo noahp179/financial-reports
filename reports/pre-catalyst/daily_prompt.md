@@ -16,7 +16,7 @@ Quote prices in C$. Check any US idea with `cad-listing`, and drop it if there i
 - "in C$: yes/no" for each;
 - buy prices in C$ for Canadian lines, and in US$ (labelled) for US-only names.
 
-The calendar shows odds on every entry ("· 85% approval", "· 97% closes"). US-only names may appear only in that section and the calendar, never in the Canadian picks table.
+The calendar shows odds on every entry ("· 85% approval", "· 97% closes"). Keep those odds at the end of each event's text in `calendar.csv`, and add every FDA or Health Canada decision date there. US-only names may appear only in that section and the calendar, never in the Canadian picks table.
 
 **What you can use:**
 - `{py} scripts/precatalyst.py <command>` for these commands:

@@ -644,18 +644,25 @@ def tracked_updates(since: dt.date) -> list[dict[str, str]]:
     return out
 
 
+DRUG_EVENT = re.compile(r"\bFDA\b|Health Canada", re.IGNORECASE)
+
+
 def calendar_html(weeks: int) -> str:
     today = dt.date.today()
     start = today - dt.timedelta(days=today.weekday())
     end = start + dt.timedelta(weeks=weeks)
     by_day: dict[str, list[dict[str, str]]] = {}
     later = []
-    # Only tracked names; the symbol keeps a TSX listing from linking to a US namesake.
+    # Tracked names, plus every drug-approval date (US-only too; owner, 2026-11-18).
+    # The symbol keeps a TSX listing from linking to a US namesake.
     symbols = {t: rec.get("yahoo_symbol") or t for t, rec in active_names().items()}
     for row in sorted(read_csv(CALENDAR), key=lambda r: r["date"]):
-        if row["ticker"] not in symbols:
+        if row["ticker"] in symbols:
+            row["symbol"] = symbols[row["ticker"]]
+        elif DRUG_EVENT.search(row["event"]):
+            row["symbol"] = row["ticker"]
+        else:
             continue
-        row["symbol"] = symbols[row["ticker"]]
         day = dt.date.fromisoformat(row["date"])
         if start <= day < end:
             by_day.setdefault(row["date"], []).append(row)
