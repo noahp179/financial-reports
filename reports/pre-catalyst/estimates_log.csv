@@ -63,3 +63,4 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-17,ACB,6.6,Hold,0.0151,0.0470,0.80,-0.1773,0.12,OGI -11.9% to 1.04 (Nasdaq bid-price notice); mix now C$6.91; ACB 6.60 (-6.4%); Curaleaf offer ~C$6.04
 2026-11-18,T,13.25,Hold,0.0219,0.2075,0.22,-0.1094,0.30,QBR-B -12.6% more to 57.00 cuts offer to C$16.04 (6.35 + 0.17 x 57); Quebecor holders' reaction raises walk-away risk; T 13.25 (-3.3%)
 2026-11-18,ACB,6.47,Hold,0.0274,0.0587,0.80,-0.1607,0.12,OGI 1.02; mix C$6.85; ACB 6.47
+2026-11-18,T,13.38,Hold,0.0064,0.1704,0.22,-0.1181,0.30,Intraday 11/18: QBR-B -4% more to 54.74 cuts offer to C$15.66 (6.35 + 0.17 x 54.74); T 13.38; meeting Nov 23
