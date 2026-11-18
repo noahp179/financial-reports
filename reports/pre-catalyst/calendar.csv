@@ -33,3 +33,5 @@ date,ticker,event,status,source
 2027-03-31,CF,Shareholder vote on take-private (company: Q1 2027),estimated,https://www.newswire.ca/news-releases/canaccord-genuity-group-inc-enters-into-agreement-to-be-taken-private-by-chairman-and-ceo-dan-daviau-835103153.html
 2026-11-16,HELP,Phase 3 APPROACH results: met primary endpoint (stock -13.6%),confirmed,https://finance.yahoo.com/healthcare/articles/helus-pharma-announces-positive-topline-120000461.html
 2026-12-31,ACB,Aurora and Organigram shareholder votes on the deal (company: December; date not set),estimated,https://www.bnnbloomberg.ca/press-releases/2026/11/03/organigram-to-acquire-aurora-and-establish-a-global-cannabis-leader/
+2026-11-30,COGT,FDA decision (bezuclastinib for GIST; US only),confirmed,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html
+2026-12-30,COGT,FDA decision (bezuclastinib for non-advanced systemic mastocytosis; US only),reported,https://finance.yahoo.com/healthcare/articles/cogent-biosciences-reports-recent-business-210100739.html

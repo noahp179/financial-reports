@@ -10,6 +10,14 @@ Read `reports/pre-catalyst/README.md` first and follow it: the mandate (the owne
 
 Quote prices in C$. Check any US idea with `cad-listing`, and drop it if there is no Canadian line. See "Canadian dollars only" in the README.
 
+**Drug approvals first (owner, 2026-11-18).** Lead the email with a "Drug approvals watch" table. Follow "Drug approvals focus" in the README:
+- every small or mid-size drug company with an FDA decision date or an expected Health Canada decision in the next 90 days, or with approval news since {since};
+- a chance of approval for each, with a one-line reason;
+- "in C$: yes/no" for each;
+- buy prices in C$ for Canadian lines, and in US$ (labelled) for US-only names.
+
+The calendar shows odds on every entry ("· 85% approval", "· 97% closes"). US-only names may appear only in that section and the calendar, never in the Canadian picks table.
+
 **What you can use:**
 - `{py} scripts/precatalyst.py <command>` for these commands:
   - `snapshot`

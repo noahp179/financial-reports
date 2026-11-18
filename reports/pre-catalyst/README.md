@@ -168,6 +168,27 @@ The 2026-10-26 post-mortem looked at that day's top movers and found three kinds
 
 **What these checks cannot do:** predict the timing of unannounced deals, or unexplained intraday rallies. Examples from that day: EQT/Range, High Liner, GrafTech (EAF), Xtend (XTND). Don't claim otherwise. Don't trade on suspected leaks.
 
+## Drug approvals focus (owner, 2026-11-18)
+
+The owner wants the email to lead with biotech companies waiting on a drug approval, from the FDA or Health Canada, and with any news on them. This overrides the "Canadian-only" email rules below **for this section only**.
+
+- **Who is covered:**
+  - every small or mid-size drug company (under about US$10B) with an FDA decision date or a Health Canada decision expected in the next 90 days;
+  - any company that had news on its approval since the last email (label talks, inspections, delays, advisory panels, rejections, approvals).
+  - Include US-only companies. Mark each as **"in C$: yes"** (TSX, TSX-V, CSE, Cboe Canada or CDR; check with `cad-listing`) or **"in C$: no (US only)"**.
+- **Where to find dates:**
+  - the calendar and candidate log;
+  - company releases and 10-Q/6-K filings ("PDUFA", "target action date", "NDA/BLA accepted");
+  - web searches for "PDUFA date <month year>" and "FDA decision" calendars (RTTNews, BiopharmCatalyst-style lists), confirmed against the company's own release.
+  - **Health Canada:** decisions have no public date, so look for Canadian-listed companies saying a "New Drug Submission" (NDS) was filed or accepted, priority review, or a "Notice of Compliance" (NOC) received.
+- **Chance of approval for every event:**
+  - Base it on the trial results (size, placebo control, main goal met and by how much), any past FDA rejection, advisory panel votes, review delays, label talks (a good sign), and the drug type. Explain it in one plain line.
+  - Re-check it each run when there's news.
+- **Call:**
+  - Canadian lines are rated in C$ as usual.
+  - For US-only names, give the buy price in US$, clearly labelled "US$ (needs currency conversion, about 1.5% each way at Wealthsimple)". Never put a US-only name in the main Canadian picks table.
+- **After the decision:** record the outcome and the stock move (approved/rejected/delayed; up/down), and say plainly whether our chance was right. A likely approval can still send a stock down if it was priced in.
+
 ## Morning email (the owner's single daily email — keep it short and plain)
 
 Send **one** email each trading morning to nepollack@gmail.com. Don't send separate addenda. The full detailed report stays in the repo and is linked at the bottom of the email.
@@ -198,6 +219,17 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
   - **Say where each company trades:** in the table, give the exchange (TSX, TSX-V, CSE or Cboe Canada) after each name.
 - **Layout** (aim for one screen; at most 3 short sections plus the table):
   1. **One-line headline:** the single best idea today, or "No strong ideas today".
+  1a. **Drug approvals watch** (first section, owner 2026-11-18; see "Drug approvals focus"). It is a table sorted by decision date, with these columns:
+      - company (ticker, exchange);
+      - drug and what it treats, in plain words;
+      - FDA or Health Canada;
+      - decision date;
+      - chance of approval ("85% chance");
+      - latest news with date and link (or "no news");
+      - in C$: yes / no;
+      - call and buy price.
+
+      Under the table, give one plain line per name with news since the last email, and the results of any decision since the last email.
   2. **Table**, sorted Buy first, then the closest-to-Buy names, then long shots. Columns:
      - **Stock:** ticker linked to `https://finance.yahoo.com/quote/<YAHOO SYMBOL>` (for example `WCP.TO`), plus the company name and its exchange (TSX, TSX-V, CSE, or "CDR" for the Canadian version of a US stock).
      - **Price:** in C$.
@@ -223,6 +255,8 @@ Send **one** email each trading morning to nepollack@gmail.com. Don't send separ
       - **Floor:** no sub-C$0.50 shells or routine notices. If it was truly quiet, say so in one line.
   4d. **Grow the tracker.** The Canadian list restarted from zero on 2026-10-30. Until it holds about 10 names, add every liquid Canadian stock (C$0.50+, about C$250K a day) that has a dated event in the next 90 days and real research behind it, rated (usually Hold with a buy price). Examples: results days, FDA or Health Canada decisions, trial readouts, takeover votes, mine studies.
   5. **Tracked stocks and Calendar:** paste the HTML produced by `email-sections` (see "Tracking news, prices and estimates" below). It replaces a separate key-dates list.
+     - **Calendar odds (owner, 2026-11-18):** every calendar entry shows its odds, for example "FDA decision · 85% approval" or "takeover vote · 97% closes".
+     - The calendar includes the drug-approval dates from 1a, US-only ones too, marked "(US only)".
   6. **Footer:** a link to the full report on GitHub, plus "Not investment advice; risky events can lose a large part of the money put in."
 - **Prices:** say how fresh they are (for example, "prices: Oct 26 close" or "pre-market 7:15 ET").
 
