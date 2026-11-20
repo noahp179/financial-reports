@@ -66,3 +66,6 @@ date,ticker,price,rating,expected_return,upside,p_upside,downside,p_downside,not
 2026-11-18,T,13.38,Hold,0.0064,0.1704,0.22,-0.1181,0.30,Intraday 11/18: QBR-B -4% more to 54.74 cuts offer to C$15.66 (6.35 + 0.17 x 54.74); T 13.38; meeting Nov 23
 2026-11-19,T,13.63,Hold,-0.0134,0.1431,0.22,-0.1343,0.30,Nov 18 close: T +2.9% to 13.63 while QBR-B -4.7% to 54.31 cut the offer to C$15.58 (6.35 + 0.17 x 54.31); meeting Nov 23
 2026-11-19,ACB,6.31,Hold,0.0301,0.0571,0.80,-0.1601,0.12,Nov 18 close: OGI -5.9% to 0.96 cuts the mix to C$6.67 (3.75 + 3.0431 x 0.96); ACB 6.31 (-2.5%); Curaleaf offer expires Dec 4
+2026-11-20,T,15.5,Hold,-0.0494,0.1290,0.40,-0.2194,0.35,"Nov 19 close 15.50 (+13.7%): Globe and Mail reports BCE held preliminary talks with TELUS (BCE no comment); QBR-B +7.5% to 58.40 lifts Quebecor offer to C$16.28 (6.35 + 0.17 x 58.40); Quebecor reaffirms, meeting Nov 23; deal odds 22% -> 40% on second suitor; regulatory risk high (Bell+TELUS ~55% wireless)"
+2026-11-20,ACB,6.14,Hold,0.0414,0.1889,0.08,-0.1612,0.12,Nov 19 close: OGI -6.2% to 0.90 cuts the mix to C$6.49 (3.75 + 3.0431 x 0.90); ACB 6.14 (-2.7%); gap 5.7%; Curaleaf offer expires Dec 4
+2026-11-20,LCFS,20.8,Hold,0.0129,0.0240,0.93,-0.2067,0.04,Nov 19 close: TWM -6.3% to 24.20 so 0.88 TWM = C$21.30; LCFS 20.80 (-6.6%); gap 2.4%; votes Dec 14
